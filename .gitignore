@@ -73,3 +73,7 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+.DS_Store
+
+# Gradle daemon JVM properties (machine-specific)
+android/gradle/gradle-daemon-jvm.properties
