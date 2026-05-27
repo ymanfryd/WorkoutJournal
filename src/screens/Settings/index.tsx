@@ -6,7 +6,7 @@ function SettingsScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings</Text>
-      <Text style={styles.subtitle}>Settings whill show up here</Text>
+      <Text style={styles.subtitle}>Settings will show up here</Text>
     </View>
   );
 }

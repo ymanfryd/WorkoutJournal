@@ -4,6 +4,9 @@ import WorkoutScreen from '@/screens/Workout';
 
 export const HistoryStack = createNativeStackNavigator({
   initialRouteName: 'History',
+  screenOptions: {
+    headerShown: false,
+  },
   screens: {
     History: {
       screen: HistoryScreen,

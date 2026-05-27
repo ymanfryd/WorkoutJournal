@@ -1,11 +1,18 @@
+import Button from '@/components/Button';
 import {colors, spacing} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 function TodayScreen() {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Today</Text>
-      <Text style={styles.subtitle}>Active training whill show up here</Text>
+      <Text style={styles.subtitle}>Active training will show up here</Text>
+      <Button
+        text={'Start training'}
+        onPress={() => navigation.navigate('ActiveWorkout')}
+      />
     </View>
   );
 }

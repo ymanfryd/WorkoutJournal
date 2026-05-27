@@ -1,9 +1,9 @@
 import React from 'react';
 import {createStaticNavigation} from '@react-navigation/native';
-import {RootTabs} from '@/navigation/RootTabs';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import RootStack from '@/navigation/RootStack';
 
-const Navigation = createStaticNavigation(RootTabs);
+const Navigation = createStaticNavigation(RootStack);
 
 function App() {
   return (

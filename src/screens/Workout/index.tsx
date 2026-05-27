@@ -1,6 +1,8 @@
 import {colors, spacing, radius} from '@/theme';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {useNavigation, type StaticScreenProps} from '@react-navigation/native';
+import Button from '@/components/Button';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 type Props = StaticScreenProps<{id: string}>;
 
@@ -9,22 +11,13 @@ function WorkoutScreen({route}: Props) {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.label}>Workout</Text>
         <Text style={styles.id}>#{id}</Text>
       </View>
-
-      <Pressable
-        onPress={() => navigation.goBack()}
-        android_ripple={{color: colors.surfaceElevated}}
-        style={({pressed}) => [
-          styles.backButton,
-          pressed && styles.backButtonPressed,
-        ]}>
-        <Text style={styles.backButtonText}>Back</Text>
-      </Pressable>
-    </View>
+      <Button text={'Back'} onPress={navigation.goBack} />
+    </SafeAreaView>
   );
 }
 
@@ -53,19 +46,5 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 32,
     fontWeight: '700',
-  },
-  backButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-    alignItems: 'center',
-  },
-  backButtonPressed: {
-    opacity: 0.85,
-  },
-  backButtonText: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
   },
 });

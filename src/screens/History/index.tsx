@@ -2,6 +2,7 @@ import React from 'react';
 import {Text, Pressable, StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {colors, spacing, radius} from '@/theme';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 function HistoryScreen() {
   const navigation = useNavigation();
@@ -25,7 +26,7 @@ function HistoryScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {workouts.map(workout => (
         <Pressable
           key={workout.id}
@@ -38,7 +39,7 @@ function HistoryScreen() {
           <Text style={styles.chevron}>›</Text>
         </Pressable>
       ))}
-    </View>
+    </SafeAreaView>
   );
 }
 
