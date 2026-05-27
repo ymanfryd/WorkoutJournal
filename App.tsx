@@ -1,15 +1,15 @@
 import React from 'react';
 import {createStaticNavigation} from '@react-navigation/native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
 import RootStack from '@/navigation/RootStack';
+import {AuthProvider} from '@/auth/AuthContext';
 
 const Navigation = createStaticNavigation(RootStack);
 
 function App() {
   return (
-    <SafeAreaProvider>
+    <AuthProvider>
       <Navigation />
-    </SafeAreaProvider>
+    </AuthProvider>
   );
 }
 

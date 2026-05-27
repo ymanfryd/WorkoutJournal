@@ -1,12 +1,17 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {colors, spacing} from '@/theme';
+import Button from '@/components/Button';
+import {useAuth} from '@/auth/AuthContext';
 
 function SettingsScreen() {
+  const {signOut} = useAuth();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings</Text>
-      <Text style={styles.subtitle}>Settings will show up here</Text>
+      <View style={styles.signOutWrapper}>
+        <Button text="Sign Out" onPress={signOut} />
+      </View>
     </View>
   );
 }
@@ -31,5 +36,10 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
+  },
+  signOutWrapper: {
+    width: '100%',
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.xl,
   },
 });

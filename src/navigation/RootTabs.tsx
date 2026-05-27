@@ -41,18 +41,18 @@ export const RootTabs = createBottomTabNavigator({
         },
       },
     },
+    History: {
+      screen: HistoryStack,
+      options: {
+        tabBarIcon: () => <Text>📅</Text>,
+      },
+    },
     Settings: {
       screen: SettingsScreen,
       options: {
         tabBarIcon: () => {
           return <Text>⚙️</Text>;
         },
-      },
-    },
-    History: {
-      screen: HistoryStack,
-      options: {
-        tabBarIcon: () => <Text>📅</Text>,
       },
     },
   },
