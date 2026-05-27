@@ -22,14 +22,23 @@ const RootStack = createNativeStackNavigator({
         presentation: 'modal',
       },
       screens: {
-        ActiveWorkout: ActiveWorkoutScreen,
-        EditExercise: EditExerciseScreen,
+        ActiveWorkout: {
+          screen: ActiveWorkoutScreen,
+          linking: 'active-workout',
+        },
+        EditExercise: {
+          screen: EditExerciseScreen,
+          linking: 'edit-exercise/:id',
+        },
       },
     },
     LoggedOut: {
       if: useIsSignedOut,
       screens: {
-        SignIn: SignInScreen,
+        SignIn: {
+          screen: SignInScreen,
+          linking: 'signin',
+        },
       },
     },
   },

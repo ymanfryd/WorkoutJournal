@@ -8,7 +8,11 @@ const Navigation = createStaticNavigation(RootStack);
 function App() {
   return (
     <AuthProvider>
-      <Navigation />
+      <Navigation
+        linking={{
+          prefixes: ['workoutjournal://'],
+        }}
+      />
     </AuthProvider>
   );
 }

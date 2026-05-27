@@ -3,22 +3,18 @@ import HistoryScreen from '@/screens/History';
 import WorkoutScreen from '@/screens/Workout';
 
 export const HistoryStack = createNativeStackNavigator({
-  initialRouteName: 'History',
+  initialRouteName: 'HistoryList',
   screenOptions: {
     headerShown: false,
   },
   screens: {
-    History: {
+    HistoryList: {
       screen: HistoryScreen,
-      options: {
-        title: 'History',
-      },
+      linking: '',
     },
     Workout: {
       screen: WorkoutScreen,
-      options: {
-        title: 'Workout',
-      },
+      linking: 'workouts/:id',
     },
   },
 });

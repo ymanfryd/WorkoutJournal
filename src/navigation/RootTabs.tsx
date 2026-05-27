@@ -19,6 +19,7 @@ export const RootTabs = createBottomTabNavigator({
   screens: {
     Today: {
       screen: TodayScreen,
+      linking: 'today',
       options: {
         tabBarIcon: () => {
           return <Text>🔥</Text>;
@@ -27,6 +28,7 @@ export const RootTabs = createBottomTabNavigator({
     },
     Exercises: {
       screen: ExercisesScreen,
+      linking: 'exercises',
       options: {
         tabBarIcon: () => {
           return <Text>🏋️</Text>;
@@ -35,6 +37,7 @@ export const RootTabs = createBottomTabNavigator({
     },
     Stats: {
       screen: StatsScreen,
+      linking: 'stats',
       options: {
         tabBarIcon: () => {
           return <Text> 📊</Text>;
@@ -43,12 +46,14 @@ export const RootTabs = createBottomTabNavigator({
     },
     History: {
       screen: HistoryStack,
+      linking: 'history',
       options: {
         tabBarIcon: () => <Text>📅</Text>,
       },
     },
     Settings: {
       screen: SettingsScreen,
+      linking: 'settings',
       options: {
         tabBarIcon: () => {
           return <Text>⚙️</Text>;
