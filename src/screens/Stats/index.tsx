@@ -6,7 +6,7 @@ function StatsScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Stats</Text>
-      <Text style={styles.subtitle}>Statistics whill show up here</Text>
+      <Text style={styles.subtitle}>Statistics will show up here</Text>
     </View>
   );
 }

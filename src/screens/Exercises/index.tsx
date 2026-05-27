@@ -1,12 +1,19 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {colors, spacing} from '@/theme';
+import Button from '@/components/Button';
+import {useNavigation} from '@react-navigation/native';
 
 function ExercisesScreen() {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Exercises</Text>
-      <Text style={styles.subtitle}>Exercises whill show up here</Text>
+      <Text style={styles.subtitle}>Exercises will show up here</Text>
+      <Button
+        text={'Start training'}
+        onPress={() => navigation.navigate('EditExercise')}
+      />
     </View>
   );
 }
