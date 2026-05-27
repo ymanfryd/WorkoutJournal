@@ -1,10 +1,10 @@
-import {RootStack} from '@/navigation/RootStack';
+import {RootTabs} from '@/navigation/RootTabs';
 import type {StaticParamList} from '@react-navigation/native';
 
-export type RootStackParamList = StaticParamList<typeof RootStack>;
+export type RootTabsParamList = StaticParamList<typeof RootTabs>;
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootTabsParamList {}
   }
 }

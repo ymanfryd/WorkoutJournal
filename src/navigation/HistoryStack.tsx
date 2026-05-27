@@ -2,7 +2,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HistoryScreen from '@/screens/History';
 import WorkoutScreen from '@/screens/Workout';
 
-export const RootStack = createNativeStackNavigator({
+export const HistoryStack = createNativeStackNavigator({
   initialRouteName: 'History',
   screens: {
     History: {
