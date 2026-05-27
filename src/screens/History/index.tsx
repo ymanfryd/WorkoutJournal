@@ -1,18 +1,20 @@
 import React from 'react';
-import {Text, Pressable, StyleSheet, View} from 'react-native';
+import {
+  Text,
+  Pressable,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {colors, spacing, radius} from '@/theme';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {useWorkouts} from '@/hooks/useWorkouts';
 
 function HistoryScreen() {
   const navigation = useNavigation();
-  const workouts = [
-    {id: '5', date: Date.now(), exercises: 15},
-    {id: '4', date: Date.now() - 1 * 24 * 60 * 60 * 1000, exercises: 6},
-    {id: '3', date: Date.now() - 3 * 24 * 60 * 60 * 1000, exercises: 8},
-    {id: '2', date: Date.now() - 7 * 24 * 60 * 60 * 1000, exercises: 5},
-    {id: '1', date: Date.now() - 14 * 24 * 60 * 60 * 1000, exercises: 3},
-  ];
+
+  const {data: workouts, isLoading, isError} = useWorkouts();
 
   function navigateToWorkout(id: string) {
     navigation.navigate('Workout', {id});
@@ -24,7 +26,19 @@ function HistoryScreen() {
       month: 'short',
     });
   }
-
+  if (isLoading)
+    return (
+      <View style={styles.centeredContainer}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  if (isError || !workouts) {
+    return (
+      <View style={styles.centeredContainer}>
+        <Text style={styles.errorText}>Не удалось загрузить тренировки</Text>
+      </View>
+    );
+  }
   return (
     <SafeAreaView style={styles.container}>
       {workouts.map(workout => (
@@ -80,5 +94,17 @@ const styles = StyleSheet.create({
   chevron: {
     color: colors.textMuted,
     fontSize: 24,
+  },
+  centeredContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+  errorText: {
+    color: colors.danger,
+    fontSize: 16,
+    textAlign: 'center',
+    paddingHorizontal: spacing.lg,
   },
 });
