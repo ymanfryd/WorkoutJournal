@@ -1,9 +1,21 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import HomeScreen from '@/screens/Home';
+import HistoryScreen from '@/screens/History';
+import WorkoutScreen from '@/screens/Workout';
 
 export const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Home',
+  initialRouteName: 'History',
   screens: {
-    Home: HomeScreen,
+    History: {
+      screen: HistoryScreen,
+      options: {
+        title: 'History',
+      },
+    },
+    Workout: {
+      screen: WorkoutScreen,
+      options: {
+        title: 'Workout',
+      },
+    },
   },
 });
