@@ -5,16 +5,20 @@ import {
   StyleSheet,
   View,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {colors, spacing, radius} from '@/theme';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useWorkouts} from '@/hooks/useWorkouts';
+import Button from '@/components/Button';
+import {useCreateWorkout} from '@/hooks/useCreateWorkout';
 
 function HistoryScreen() {
   const navigation = useNavigation();
 
   const {data: workouts, isLoading, isError} = useWorkouts();
+  const createWorkout = useCreateWorkout();
 
   function navigateToWorkout(id: string) {
     navigation.navigate('Workout', {id});
@@ -41,18 +45,27 @@ function HistoryScreen() {
   }
   return (
     <SafeAreaView style={styles.container}>
-      {workouts.map(workout => (
-        <Pressable
-          key={workout.id}
-          onPress={() => navigateToWorkout(workout.id)}
-          style={({pressed}) => [styles.card, pressed && styles.cardPressed]}>
-          <View style={styles.cardContent}>
-            <Text style={styles.date}>{formatDate(workout.date)}</Text>
-            <Text style={styles.meta}>{workout.exercises} exercises</Text>
-          </View>
-          <Text style={styles.chevron}>›</Text>
-        </Pressable>
-      ))}
+      <Button
+        disabled={createWorkout.isPending}
+        text="+ Create workout"
+        onPress={() => {
+          createWorkout.mutate({exercises: 5});
+        }}
+      />
+      <ScrollView>
+        {workouts.map(workout => (
+          <Pressable
+            key={workout.id}
+            onPress={() => navigateToWorkout(workout.id)}
+            style={({pressed}) => [styles.card, pressed && styles.cardPressed]}>
+            <View style={styles.cardContent}>
+              <Text style={styles.date}>{formatDate(workout.date)}</Text>
+              <Text style={styles.meta}>{workout.exercises} exercises</Text>
+            </View>
+            <Text style={styles.chevron}>›</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 }
