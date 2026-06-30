@@ -2,10 +2,10 @@ import {colors, spacing} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Button from '@/components/Button';
-import {useAuth} from '@/auth/AuthContext';
+import {useAuthStore} from '@/stores/authStore';
 
 function SignInScreen() {
-  const {signIn} = useAuth();
+  const signIn = useAuthStore(s => s.signIn);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
