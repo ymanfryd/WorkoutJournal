@@ -1,16 +1,29 @@
 import {colors, spacing, radius} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
-import {useNavigation, type StaticScreenProps} from '@react-navigation/native';
+import {
+  NavigationProp,
+  StaticParamList,
+  useNavigation,
+  type StaticScreenProps,
+} from '@react-navigation/native';
 import Button from '@/components/Button';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useDeleteWorkout} from '@/hooks/useDeleteWorkout';
+import {HistoryStack} from '@/navigation/HistoryStack';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 type Props = StaticScreenProps<{id: string}>;
+type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
 
 function WorkoutScreen({route}: Props) {
   const {id} = route.params;
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<HistoryStackParamList>>();
   const deleteWorkout = useDeleteWorkout();
+
+  function goBack() {
+    navigation.popTo('HistoryList');
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,10 +35,10 @@ function WorkoutScreen({route}: Props) {
         disabled={deleteWorkout.isPending}
         text={'Delete workout'}
         onPress={() => {
-          deleteWorkout.mutate(id, {onSuccess: () => navigation.goBack()});
+          deleteWorkout.mutate(id, {onSuccess: goBack});
         }}
       />
-      <Button text={'Back'} onPress={navigation.goBack} />
+      <Button text={'Back'} onPress={goBack} />
     </SafeAreaView>
   );
 }
