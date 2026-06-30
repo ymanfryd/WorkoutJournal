@@ -2,10 +2,10 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {colors, spacing} from '@/theme';
 import Button from '@/components/Button';
-import {useAuth} from '@/auth/AuthContext';
+import {useAuthStore} from '@/stores/authStore';
 
 function SettingsScreen() {
-  const {signOut} = useAuth();
+  const signOut = useAuthStore(s => s.signOut);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings</Text>
