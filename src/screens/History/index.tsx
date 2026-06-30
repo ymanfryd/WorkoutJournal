@@ -1,35 +1,29 @@
 import React from 'react';
 import {
   Text,
-  Pressable,
   StyleSheet,
   View,
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {colors, spacing, radius} from '@/theme';
+import {colors, spacing} from '@/theme';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useWorkouts} from '@/hooks/useWorkouts';
 import Button from '@/components/Button';
 import {useCreateWorkout} from '@/hooks/useCreateWorkout';
+import WorkoutCard from './WorkoutCard';
+import {useNavigation} from '@react-navigation/native';
+import {useDeleteWorkout} from '@/hooks/useDeleteWorkout';
 
 function HistoryScreen() {
-  const navigation = useNavigation();
-
   const {data: workouts, isLoading, isError} = useWorkouts();
   const createWorkout = useCreateWorkout();
-
+  const deleteWorkout = useDeleteWorkout();
+  const navigation = useNavigation();
   function navigateToWorkout(id: string) {
     navigation.navigate('Workout', {id});
   }
 
-  function formatDate(ts: number) {
-    return new Date(ts).toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'short',
-    });
-  }
   if (isLoading)
     return (
       <View style={styles.centeredContainer}>
@@ -54,16 +48,12 @@ function HistoryScreen() {
       />
       <ScrollView>
         {workouts.map(workout => (
-          <Pressable
+          <WorkoutCard
+            workout={workout}
+            onPress={navigateToWorkout}
+            onDelete={deleteWorkout.mutate}
             key={workout.id}
-            onPress={() => navigateToWorkout(workout.id)}
-            style={({pressed}) => [styles.card, pressed && styles.cardPressed]}>
-            <View style={styles.cardContent}>
-              <Text style={styles.date}>{formatDate(workout.date)}</Text>
-              <Text style={styles.meta}>{workout.exercises} exercises</Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </Pressable>
+          />
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -79,34 +69,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
     gap: spacing.sm,
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surface,
-    padding: spacing.md,
-    borderRadius: radius.md,
-  },
-  cardPressed: {
-    backgroundColor: colors.surfaceElevated,
-    transform: [{scale: 0.98}],
-  },
-  cardContent: {
-    gap: spacing.xs,
-  },
-  date: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  meta: {
-    color: colors.textMuted,
-    fontSize: 14,
-  },
-  chevron: {
-    color: colors.textMuted,
-    fontSize: 24,
   },
   centeredContainer: {
     flex: 1,
