@@ -22,28 +22,23 @@ function HistoryScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<HistoryStackParamList>>();
 
-  const navigateToWorkout = useCallback(
-    (id: string) => {
-      navigation.navigate('Workout', {id});
-    },
-    [navigation],
-  );
+  function navigateToWorkout(id: string) {
+    navigation.navigate('Workout', {id});
+  }
 
-  const onDelete = useCallback(
-    (id: string) => deleteWorkoutMutation(id),
-    [deleteWorkoutMutation],
-  );
+  function onDelete(id: string) {
+    deleteWorkoutMutation(id);
+  }
 
-  const renderItem = useCallback(
-    ({item}: {item: Workout}) => (
+  function renderItem({item}: {item: Workout}) {
+    return (
       <WorkoutCard
         workout={item}
         onPress={navigateToWorkout}
         onDelete={onDelete}
       />
-    ),
-    [navigateToWorkout, onDelete],
-  );
+    );
+  }
 
   if (isLoading)
     return (

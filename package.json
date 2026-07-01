@@ -17,6 +17,7 @@
     "@shopify/flash-list": "^2.3.2",
     "@shopify/react-native-skia": "^2.6.9",
     "@tanstack/react-query": "^5.100.14",
+    "babel-plugin-react-compiler": "^1.0.0",
     "react": "19.2.3",
     "react-native": "0.85.3",
     "react-native-gesture-handler": "^3.0.2",
