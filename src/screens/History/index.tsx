@@ -1,28 +1,49 @@
-import React from 'react';
-import {
-  Text,
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  ScrollView,
-} from 'react-native';
+import React, {useCallback} from 'react';
+import {Text, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {colors, spacing} from '@/theme';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useWorkouts} from '@/hooks/useWorkouts';
 import Button from '@/components/Button';
 import {useCreateWorkout} from '@/hooks/useCreateWorkout';
 import WorkoutCard from './WorkoutCard';
-import {useNavigation} from '@react-navigation/native';
+import {StaticParamList, useNavigation} from '@react-navigation/native';
 import {useDeleteWorkout} from '@/hooks/useDeleteWorkout';
+import {FlashList} from '@shopify/flash-list';
+import {Workout} from '@/api/workouts';
+import {HistoryStack} from '@/navigation/HistoryStack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
+type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
 
 function HistoryScreen() {
   const {data: workouts, isLoading, isError} = useWorkouts();
   const createWorkout = useCreateWorkout();
-  const deleteWorkout = useDeleteWorkout();
-  const navigation = useNavigation();
-  function navigateToWorkout(id: string) {
-    navigation.navigate('Workout', {id});
-  }
+  const {mutate: deleteWorkoutMutation} = useDeleteWorkout();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<HistoryStackParamList>>();
+
+  const navigateToWorkout = useCallback(
+    (id: string) => {
+      navigation.navigate('Workout', {id});
+    },
+    [navigation],
+  );
+
+  const onDelete = useCallback(
+    (id: string) => deleteWorkoutMutation(id),
+    [deleteWorkoutMutation],
+  );
+
+  const renderItem = useCallback(
+    ({item}: {item: Workout}) => (
+      <WorkoutCard
+        workout={item}
+        onPress={navigateToWorkout}
+        onDelete={onDelete}
+      />
+    ),
+    [navigateToWorkout, onDelete],
+  );
 
   if (isLoading)
     return (
@@ -46,16 +67,11 @@ function HistoryScreen() {
           createWorkout.mutate({exercises: 5});
         }}
       />
-      <ScrollView>
-        {workouts.map(workout => (
-          <WorkoutCard
-            workout={workout}
-            onPress={navigateToWorkout}
-            onDelete={deleteWorkout.mutate}
-            key={workout.id}
-          />
-        ))}
-      </ScrollView>
+      <FlashList
+        data={workouts}
+        keyExtractor={item => item.id}
+        renderItem={renderItem}
+      />
     </SafeAreaView>
   );
 }
