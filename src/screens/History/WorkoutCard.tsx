@@ -13,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import {scheduleOnRN} from 'react-native-worklets';
 import type {Workout} from '@/api/workouts';
+import {haptics} from '@/haptics';
 
 const OPEN_POSITION = -100;
 const SNAP_THRESHOLD = -50;
@@ -39,6 +40,7 @@ const WorkoutCard = ({workout, onPress, onDelete}: Props) => {
     onFinalize: () => {
       if (translateX.value < SNAP_THRESHOLD) {
         translateX.value = withSpring(OPEN_POSITION);
+        scheduleOnRN(haptics.impact, 'medium');
       } else {
         translateX.value = withSpring(0);
       }

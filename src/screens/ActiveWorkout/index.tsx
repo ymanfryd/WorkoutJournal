@@ -12,6 +12,7 @@ import {
 import {useState} from 'react';
 import {scheduleOnRN} from 'react-native-worklets';
 import Button from '@/components/Button';
+import {haptics} from '@/haptics';
 
 const REST_DURATION = 30000;
 
@@ -20,6 +21,15 @@ function ActiveWorkoutScreen() {
   const navigation = useNavigation();
 
   const [remaining, setRemaining] = useState(30);
+
+  useAnimatedReaction(
+    () => progress.value >= 1,
+    (done, wasDone) => {
+      if (done && !wasDone) {
+        scheduleOnRN(haptics.notification, 'success');
+      }
+    },
+  );
 
   useAnimatedReaction(
     () => Math.ceil((1 - progress.value) * 30),
