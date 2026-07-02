@@ -1,3 +1,4 @@
+import {haptics} from '@/haptics';
 import {colors, radius, spacing} from '@/theme';
 import React from 'react';
 import {Pressable, StyleSheet, Text} from 'react-native';
@@ -22,7 +23,10 @@ function Button({onPress, text, disabled = false}: Props) {
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        haptics.selection();
+        onPress();
+      }}
       disabled={disabled}
       onPressIn={() => (scale.value = withSpring(0.95))}
       onPressOut={() => (scale.value = withSpring(1))}
