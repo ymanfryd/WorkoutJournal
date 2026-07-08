@@ -1,5 +1,0 @@
----
-triple:          'x86_64-apple-darwin'
-binary-path:     crc32_bzip2_ext.bundle
-relocations:     []
-...
