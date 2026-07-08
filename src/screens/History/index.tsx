@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React from 'react';
 import {Text, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {colors, spacing} from '@/theme';
 import {SafeAreaView} from 'react-native-safe-area-context';
