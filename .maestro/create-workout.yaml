@@ -1,0 +1,9 @@
+appId: com.workoutjournal
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Sign In'
+- tapOn: 'History'
+- assertVisible: '5 exercises'
+- tapOn: '+ Create workout'
+- assertVisible: 'exercises'
