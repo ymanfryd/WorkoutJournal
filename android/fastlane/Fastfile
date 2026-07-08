@@ -1,0 +1,13 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build debug APK"
+  lane :build_debug do
+    gradle(task: "assembleDebug")
+  end
+
+  desc "Build release AAB (unsigned)"
+  lane :build_release do
+    gradle(task: "bundleRelease")
+  end
+end
