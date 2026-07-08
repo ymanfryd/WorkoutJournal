@@ -1,4 +1,5 @@
 import {storage} from '@/storage/mmkv';
+import {delay} from '@/utils/delay';
 
 export type Workout = {id: string; date: number; exercises: number};
 
@@ -23,15 +24,14 @@ function writeAll(workouts: Workout[]) {
 }
 
 export async function getWorkouts(): Promise<Workout[]> {
-  await new Promise(r => setTimeout(r, 800));
-
+  await delay(800);
   return readAll();
 }
 
 export async function createWorkout(input: {
   exercises: number;
 }): Promise<Workout> {
-  await new Promise(r => setTimeout(r, 500));
+  await delay(500);
   const workouts = readAll();
   const workout: Workout = {
     id: Date.now().toString(),
@@ -44,7 +44,7 @@ export async function createWorkout(input: {
 }
 
 export async function deleteWorkout(id: string): Promise<void> {
-  await new Promise(r => setTimeout(r, 500));
+  await delay(500);
   const workouts = readAll();
   const before = workouts.length;
   const updated = workouts.filter(w => w.id !== id);
