@@ -2,9 +2,19 @@ import HistoryScreen from './index';
 import {renderWithQuery} from '@/utils/test-utils';
 import * as api from '@/api/workouts';
 
+const mockNavigate = jest.fn();
+jest.mock('@react-navigation/native', () => ({
+  ...jest.requireActual('@react-navigation/native'),
+  useNavigation: () => ({
+    navigate: mockNavigate,
+    goBack: jest.fn(),
+  }),
+}));
+
 describe('HistoryScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockNavigate.mockClear();
   });
 
   it('shows loading state initially', () => {
