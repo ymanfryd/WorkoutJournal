@@ -3,6 +3,7 @@ import {createStaticNavigation} from '@react-navigation/native';
 import RootStack from '@/navigation/RootStack';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {StyleSheet} from 'react-native';
 
 const Navigation = createStaticNavigation(RootStack);
 const queryClient = new QueryClient({
@@ -11,7 +12,7 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
+    <GestureHandlerRootView style={styles.root}>
       <QueryClientProvider client={queryClient}>
         <Navigation
           linking={{
@@ -24,4 +25,7 @@ function App() {
 }
 
 export default App;
-// test
+
+const styles = StyleSheet.create({
+  root: {flex: 1},
+});

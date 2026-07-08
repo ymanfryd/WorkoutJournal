@@ -1,7 +1,6 @@
 import {colors, spacing, radius} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
 import {
-  NavigationProp,
   StaticParamList,
   useNavigation,
   type StaticScreenProps,
