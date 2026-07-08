@@ -31,3 +31,46 @@ jest.mock('@/haptics', () => ({
     selection: jest.fn(),
   },
 }));
+
+jest.mock('@react-navigation/native', () => ({
+  ...jest.requireActual('@react-navigation/native'),
+  useNavigation: () => ({
+    navigate: jest.fn(),
+    goBack: jest.fn(),
+  }),
+}));
+
+jest.mock('@/storage/mmkv', () => {
+  let store = {};
+  return {
+    storage: {
+      getString: key => store[key],
+      set: (key, value) => {
+        store[key] = value;
+      },
+      remove: key => {
+        delete store[key];
+      },
+    },
+    __resetMockStore: () => {
+      store = {};
+    },
+  };
+});
+
+jest.mock('react-native-gesture-handler', () => {
+  const RN = require('react-native');
+  return {
+    GestureDetector: ({children}) => children,
+    GestureHandlerRootView: RN.View,
+    usePanGesture: () => ({}),
+    useTapGesture: () => ({}),
+    useCompetingGestures: () => ({}),
+    usePinchGesture: () => ({}),
+    useLongPressGesture: () => ({}),
+  };
+});
+
+jest.mock('@shopify/flash-list', () => ({
+  FlashList: require('react-native').FlatList,
+}));

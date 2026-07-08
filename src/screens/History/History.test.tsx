@@ -1,0 +1,38 @@
+import HistoryScreen from './index';
+import {renderWithQuery} from '@/utils/test-utils';
+import * as api from '@/api/workouts';
+
+describe('HistoryScreen', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('shows loading state initially', () => {
+    jest
+      .spyOn(api, 'getWorkouts')
+      .mockImplementation(() => new Promise(() => {}));
+
+    const {queryByText} = renderWithQuery(<HistoryScreen />);
+    expect(queryByText('exercises')).toBeNull();
+  });
+
+  it('shows error message on error', async () => {
+    jest.spyOn(api, 'getWorkouts').mockRejectedValue(new Error('API down'));
+
+    const {findByText} = renderWithQuery(<HistoryScreen />);
+
+    expect(await findByText(/Не удалось загрузить/)).toBeTruthy();
+  });
+
+  it('renders workouts list on success', async () => {
+    jest.spyOn(api, 'getWorkouts').mockResolvedValue([
+      {id: '1', date: 1704067200000, exercises: 5}, // 2024-01-01
+      {id: '2', date: 1706745600000, exercises: 8}, // 2024-02-01
+    ]);
+
+    const {findByText} = renderWithQuery(<HistoryScreen />);
+
+    expect(await findByText('5 exercises')).toBeTruthy();
+    expect(await findByText('8 exercises')).toBeTruthy();
+  });
+});
