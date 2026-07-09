@@ -98,6 +98,20 @@ const DEFAULT_EXERCISES: Exercise[] = [
   },
 ];
 
+export async function createExercise(
+  input: Omit<Exercise, 'id' | 'isCustom'>,
+): Promise<Exercise> {
+  await delay(200);
+  const exercise: Exercise = {
+    id: Date.now().toString(),
+    isCustom: true,
+    ...input,
+  };
+  const exercises = readAll();
+  writeAll([exercise, ...exercises]);
+  return exercise;
+}
+
 function readAll(): Exercise[] {
   const raw = storage.getString(KEY);
   if (!raw) {
