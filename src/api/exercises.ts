@@ -1,4 +1,5 @@
 import {storage} from '@/storage/mmkv';
+import {delay} from '@/utils/delay';
 
 export type ExerciseCategory =
   | 'barbell'
@@ -111,6 +112,6 @@ function writeAll(exercises: Exercise[]) {
 }
 
 export async function getExercises(): Promise<Exercise[]> {
-  await new Promise<void>(resolve => setTimeout(resolve, 300));
+  await delay(300);
   return readAll();
 }

@@ -1,19 +1,52 @@
-import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {colors, spacing} from '@/theme';
-import Button from '@/components/Button';
-import {useNavigation} from '@react-navigation/native';
+import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {FlashList} from '@shopify/flash-list';
+import {colors, radius, spacing} from '@/theme';
+import {useExercises} from '@/hooks/useExercises';
+import type {Exercise} from '@/api/exercises';
 
 function ExercisesScreen() {
-  const navigation = useNavigation();
+  const {data, isLoading, isError} = useExercises();
+
+  if (isLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>Failed to load exercises</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Exercises</Text>
-      <Text style={styles.subtitle}>Exercises will show up here</Text>
-      <Button
-        text={'Start training'}
-        onPress={() => navigation.navigate('EditExercise')}
+    <SafeAreaView style={styles.container}>
+      <FlashList
+        data={data}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => <ExerciseRow exercise={item} />}
+        ItemSeparatorComponent={() => <View style={{height: spacing.sm}} />}
+        contentContainerStyle={{padding: spacing.md}}
       />
+    </SafeAreaView>
+  );
+}
+
+function ExerciseRow({exercise}: {exercise: Exercise}) {
+  return (
+    <View style={styles.row}>
+      <View style={styles.rowContent}>
+        <Text style={styles.name}>{exercise.name}</Text>
+        <Text style={styles.muscleGroup}>{exercise.muscleGroup}</Text>
+      </View>
+      <View style={styles.categoryChip}>
+        <Text style={styles.categoryText}>{exercise.category}</Text>
+      </View>
     </View>
   );
 }
@@ -24,19 +57,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  centered: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: spacing.lg,
-    gap: spacing.sm,
+    backgroundColor: colors.background,
   },
-  title: {
+  errorText: {
+    color: colors.danger,
+    fontSize: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.surface,
+    padding: spacing.md,
+    borderRadius: radius.md,
+  },
+  rowContent: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  name: {
     color: colors.text,
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
   },
-  subtitle: {
+  muscleGroup: {
     color: colors.textMuted,
-    fontSize: 14,
-    textAlign: 'center',
+    fontSize: 12,
+    textTransform: 'capitalize',
+  },
+  categoryChip: {
+    backgroundColor: colors.surfaceElevated,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+  },
+  categoryText: {
+    color: colors.textMuted,
+    fontSize: 12,
+    textTransform: 'capitalize',
+    letterSpacing: 0.5,
   },
 });
