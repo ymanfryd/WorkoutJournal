@@ -4,9 +4,12 @@ import {FlashList} from '@shopify/flash-list';
 import {colors, radius, spacing} from '@/theme';
 import {useExercises} from '@/hooks/useExercises';
 import type {Exercise} from '@/api/exercises';
+import Button from '@/components/Button';
+import {useNavigation} from '@react-navigation/native';
 
 function ExercisesScreen() {
   const {data, isLoading, isError} = useExercises();
+  const navigation = useNavigation();
 
   if (isLoading) {
     return (
@@ -26,6 +29,12 @@ function ExercisesScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={{padding: spacing.md}}>
+        <Button
+          text="+ Add exercise"
+          onPress={() => navigation.navigate('EditExercise')}
+        />
+      </View>
       <FlashList
         data={data}
         keyExtractor={item => item.id}
