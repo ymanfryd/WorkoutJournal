@@ -1,0 +1,7 @@
+appId: com.workoutjournal
+---
+- launchApp:
+    clearState: true
+- assertVisible: 'Workout Journal'
+- tapOn: 'Sign In'
+- assertVisible: 'Today'
