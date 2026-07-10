@@ -3,9 +3,23 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {FlashList} from '@shopify/flash-list';
 import {colors, radius, spacing} from '@/theme';
 import {useExercises} from '@/hooks/useExercises';
-import type {Exercise} from '@/api/exercises';
+import type {Exercise, MuscleGroup} from '@/api/exercises';
 import Button from '@/components/Button';
 import {useNavigation} from '@react-navigation/native';
+import ExerciseRow from './ExerciseRow';
+
+const ORDER: MuscleGroup[] = [
+  'chest',
+  'back',
+  'shoulders',
+  'arms',
+  'legs',
+  'core',
+];
+type Grouped = Partial<Record<MuscleGroup, Exercise[]>>;
+export type Row =
+  | {type: 'header'; title: string; key: string}
+  | {type: 'exercise'; exercise: Exercise; key: string};
 
 function ExercisesScreen() {
   const {data, isLoading, isError} = useExercises();
@@ -27,6 +41,24 @@ function ExercisesScreen() {
     );
   }
 
+  const grouped = data.reduce<Grouped>((acc, ex) => {
+    (acc[ex.muscleGroup] ??= []).push(ex);
+    return acc;
+  }, {});
+
+  const rows: Row[] = ORDER.flatMap(group => {
+    const exercises = grouped[group];
+    if (!exercises?.length) return [];
+    return [
+      {type: 'header' as const, title: group, key: `header-${group}`},
+      ...exercises.map(ex => ({
+        type: 'exercise' as const,
+        exercise: ex,
+        key: `exercise-${ex.id}`,
+      })),
+    ];
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={{padding: spacing.md}}>
@@ -36,27 +68,13 @@ function ExercisesScreen() {
         />
       </View>
       <FlashList
-        data={data}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => <ExerciseRow exercise={item} />}
+        data={rows}
+        keyExtractor={item => item.key}
+        renderItem={({item}) => <ExerciseRow row={item} />}
         ItemSeparatorComponent={() => <View style={{height: spacing.sm}} />}
         contentContainerStyle={{padding: spacing.md}}
       />
     </SafeAreaView>
-  );
-}
-
-function ExerciseRow({exercise}: {exercise: Exercise}) {
-  return (
-    <View style={styles.row}>
-      <View style={styles.rowContent}>
-        <Text style={styles.name}>{exercise.name}</Text>
-        <Text style={styles.muscleGroup}>{exercise.muscleGroup}</Text>
-      </View>
-      <View style={styles.categoryChip}>
-        <Text style={styles.categoryText}>{exercise.category}</Text>
-      </View>
-    </View>
   );
 }
 
