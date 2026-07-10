@@ -21,7 +21,7 @@ const WorkoutCard = ({workout, onPress, onDelete}: Props) => {
       <View style={styles.card}>
         <View style={styles.cardContent}>
           <Text style={styles.date}>{formatDate(workout.date)}</Text>
-          <Text style={styles.meta}>{workout.exercises} exercises</Text>
+          <Text style={styles.meta}>{workout.exercises.length} exercises</Text>
         </View>
         <Text style={styles.chevron}>›</Text>
       </View>

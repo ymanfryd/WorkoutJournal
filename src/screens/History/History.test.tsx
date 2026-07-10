@@ -36,13 +36,24 @@ describe('HistoryScreen', () => {
 
   it('renders workouts list on success', async () => {
     jest.spyOn(api, 'getWorkouts').mockResolvedValue([
-      {id: '1', date: 1704067200000, exercises: 5}, // 2024-01-01
-      {id: '2', date: 1706745600000, exercises: 8}, // 2024-02-01
+      {id: '1', date: 1704067200000, exercises: [], isActive: false}, // 2024-01-01
+      {
+        id: '2',
+        date: 1706745600000,
+        exercises: [
+          {
+            id: '1',
+            exerciseId: '2',
+            sets: [{id: '3', reps: 2, weight: 10, completed: true}],
+          },
+        ],
+        isActive: false,
+      }, // 2024-02-01
     ]);
 
     const {findByText} = renderWithQuery(<HistoryScreen />);
 
-    expect(await findByText('5 exercises')).toBeTruthy();
-    expect(await findByText('8 exercises')).toBeTruthy();
+    expect(await findByText('0 exercises')).toBeTruthy();
+    expect(await findByText('1 exercises')).toBeTruthy();
   });
 });
