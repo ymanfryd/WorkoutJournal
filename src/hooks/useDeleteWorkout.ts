@@ -7,6 +7,7 @@ export function useDeleteWorkout() {
     mutationFn: deleteWorkout,
     onSuccess: async () => {
       await queryClient.invalidateQueries({queryKey: ['workouts']});
+      await queryClient.invalidateQueries({queryKey: ['activeWorkout']});
     },
   });
 }
