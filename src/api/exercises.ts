@@ -112,6 +112,16 @@ export async function createExercise(
   return exercise;
 }
 
+export async function deleteExercise(id: string): Promise<void> {
+  await delay(200);
+  const exercises = readAll();
+  const updated = exercises.filter(i => i.id !== id);
+  if (exercises.length === updated.length) {
+    throw new Error('Exercise not found');
+  }
+  writeAll(updated);
+}
+
 function readAll(): Exercise[] {
   const raw = storage.getString(KEY);
   if (!raw) {
