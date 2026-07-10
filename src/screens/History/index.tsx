@@ -59,9 +59,12 @@ function HistoryScreen() {
         disabled={createWorkout.isPending}
         text="+ Create workout"
         onPress={() => {
-          createWorkout.mutate({exercises: 5});
+          createWorkout.mutate({exercises: []});
         }}
       />
+      {createWorkout.isError && (
+        <Text style={styles.errorText}>{createWorkout.error.message}</Text>
+      )}
       <FlashList
         data={workouts}
         keyExtractor={item => item.id}
