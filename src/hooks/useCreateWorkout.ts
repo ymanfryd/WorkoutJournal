@@ -7,6 +7,7 @@ export function useCreateWorkout() {
     mutationFn: createWorkout,
     onSuccess: async () => {
       await queryClient.invalidateQueries({queryKey: ['workouts']});
+      await queryClient.invalidateQueries({queryKey: ['activeWorkout']});
     },
   });
 }

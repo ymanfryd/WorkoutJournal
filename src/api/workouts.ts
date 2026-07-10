@@ -77,3 +77,9 @@ export async function deleteWorkout(id: string): Promise<void> {
   }
   writeAll(updated);
 }
+
+export function getActiveWorkout(): Workout | null {
+  const workouts = readAll();
+  const activeWorkout = workouts.find(workout => workout.isActive);
+  return activeWorkout ?? null;
+}
