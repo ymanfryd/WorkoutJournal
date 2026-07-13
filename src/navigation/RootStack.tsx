@@ -1,6 +1,5 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootTabs} from './RootTabs';
-import ActiveWorkoutScreen from '@/screens/ActiveWorkout';
 import EditExerciseScreen from '@/screens/EditExercise';
 import SignInScreen from '@/screens/SignIn';
 import {useIsSignedIn, useIsSignedOut} from '@/stores/authStore';
@@ -22,10 +21,6 @@ const RootStack = createNativeStackNavigator({
         presentation: 'modal',
       },
       screens: {
-        ActiveWorkout: {
-          screen: ActiveWorkoutScreen,
-          linking: 'active-workout',
-        },
         EditExercise: {
           screen: EditExerciseScreen,
           linking: 'edit-exercise/:id',

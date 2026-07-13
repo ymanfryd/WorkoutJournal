@@ -1,4 +1,4 @@
-import TodayScreen from '@/screens/Today';
+import WorkoutScreen from '@/screens/Workout';
 import ExercisesScreen from '@/screens/Exercises';
 import StatsScreen from '@/screens/Stats';
 import SettingsScreen from '@/screens/Settings';
@@ -8,7 +8,7 @@ import {colors} from '@/theme';
 import {HistoryStack} from './HistoryStack';
 
 export const RootTabs = createBottomTabNavigator({
-  initialRouteName: 'Today',
+  initialRouteName: 'Workout',
   screenOptions: {
     headerShown: false,
     tabBarActiveTintColor: colors.primary,
@@ -17,9 +17,9 @@ export const RootTabs = createBottomTabNavigator({
     },
   },
   screens: {
-    Today: {
-      screen: TodayScreen,
-      linking: 'today',
+    Workout: {
+      screen: WorkoutScreen,
+      linking: 'workout',
       options: {
         tabBarIcon: () => {
           return <Text>🔥</Text>;

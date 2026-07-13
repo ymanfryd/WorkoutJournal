@@ -1,6 +1,6 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HistoryScreen from '@/screens/History';
-import WorkoutScreen from '@/screens/Workout';
+import WorkoutDetailScreen from '@/screens/WorkoutDetail';
 
 export const HistoryStack = createNativeStackNavigator({
   initialRouteName: 'HistoryList',
@@ -12,8 +12,8 @@ export const HistoryStack = createNativeStackNavigator({
       screen: HistoryScreen,
       linking: '',
     },
-    Workout: {
-      screen: WorkoutScreen,
+    WorkoutDetail: {
+      screen: WorkoutDetailScreen,
       linking: 'workouts/:id',
     },
   },

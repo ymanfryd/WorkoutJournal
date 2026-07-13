@@ -1,44 +1,61 @@
-import {colors, spacing, radius} from '@/theme';
-import {StyleSheet, Text, View} from 'react-native';
-import {
-  StaticParamList,
-  useNavigation,
-  type StaticScreenProps,
-} from '@react-navigation/native';
 import Button from '@/components/Button';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useDeleteWorkout} from '@/hooks/useDeleteWorkout';
-import {HistoryStack} from '@/navigation/HistoryStack';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {colors, spacing} from '@/theme';
+import {StyleSheet, Text, View} from 'react-native';
+import {useActiveWorkout} from '@/hooks/useActiveWorkout';
+import {useCreateWorkout} from '@/hooks/useCreateWorkout';
+import {Workout} from '@/api/workouts';
 
-type Props = StaticScreenProps<{id: string}>;
-type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
-
-function WorkoutScreen({route}: Props) {
-  const {id} = route.params;
-  const navigation =
-    useNavigation<NativeStackNavigationProp<HistoryStackParamList>>();
-  const deleteWorkout = useDeleteWorkout();
-
-  function goBack() {
-    navigation.popTo('HistoryList');
+function ActiveWorkout({workout}: {workout: Workout}) {
+  function formatWorkoutHeader(ts: number) {
+    const date = new Date(ts);
+    const time = date.toLocaleTimeString('ru-RU', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const today = new Date();
+    const isSameDay = date.toDateString() === today.toDateString();
+    const dayLabel = isSameDay
+      ? 'Today'
+      : date.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
+    return `${dayLabel}, ${time}`;
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.label}>Workout</Text>
-        <Text style={styles.id}>#{id}</Text>
+    <View style={styles.container}>
+      <View>
+        <Text style={styles.workoutSubtitle}>
+          {formatWorkoutHeader(workout.date)}
+        </Text>
+        <Text style={styles.workoutTitle}>Exercises</Text>
+        <Text style={styles.workoutSubtitle}>
+          {workout.exercises.length} exercises
+        </Text>
       </View>
-      <Button
-        disabled={deleteWorkout.isPending}
-        text={'Delete workout'}
-        onPress={() => {
-          deleteWorkout.mutate(id, {onSuccess: goBack});
-        }}
-      />
-      <Button text={'Back'} onPress={goBack} />
-    </SafeAreaView>
+    </View>
+  );
+}
+
+function WorkoutScreen() {
+  const activeWorkout = useActiveWorkout();
+  const createWorkout = useCreateWorkout();
+
+  async function onPress() {
+    await createWorkout.mutateAsync();
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Workout</Text>
+      {activeWorkout.data ? (
+        <ActiveWorkout workout={activeWorkout.data} />
+      ) : (
+        <Button
+          loading={createWorkout.isPending || activeWorkout.isLoading}
+          text={'Create empty workout'}
+          onPress={onPress}
+        />
+      )}
+    </View>
   );
 }
 
@@ -48,24 +65,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    padding: spacing.md,
-    gap: spacing.lg,
-  },
-  card: {
-    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: spacing.lg,
-    borderRadius: radius.md,
-    gap: spacing.xs,
+    gap: spacing.sm,
   },
-  label: {
+  title: {
+    color: colors.text,
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  workoutTitle: {
+    color: colors.text,
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  workoutSubtitle: {
     color: colors.textMuted,
     fontSize: 14,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  id: {
-    color: colors.text,
-    fontSize: 32,
-    fontWeight: '700',
   },
 });

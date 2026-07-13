@@ -32,11 +32,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
   },
-  subtitle: {
-    color: colors.textMuted,
-    fontSize: 14,
-    textAlign: 'center',
-  },
   signOutWrapper: {
     width: '100%',
     paddingHorizontal: spacing.lg,

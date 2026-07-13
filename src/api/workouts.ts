@@ -48,9 +48,7 @@ export async function getWorkouts(): Promise<Workout[]> {
   return readAll();
 }
 
-export async function createWorkout(input: {
-  exercises: WorkoutExercise[];
-}): Promise<Workout> {
+export async function createWorkout(): Promise<Workout> {
   await delay(500);
   const workouts = readAll();
   if (workouts.some(w => w.isActive)) {
@@ -59,7 +57,7 @@ export async function createWorkout(input: {
   const workout: Workout = {
     id: Date.now().toString(),
     date: Date.now(),
-    exercises: input.exercises,
+    exercises: [],
     isActive: true,
   };
   workouts.unshift(workout);
@@ -76,6 +74,17 @@ export async function deleteWorkout(id: string): Promise<void> {
     throw new Error('Workout not found');
   }
   writeAll(updated);
+}
+
+export async function addExerciseToActiveWorkout(exercise: WorkoutExercise) {
+  await delay(200);
+  const activeWorkout = getActiveWorkout();
+  if (!activeWorkout) {
+    throw new Error('No active workout');
+  }
+  const filtered = readAll().filter(workout => workout !== activeWorkout);
+  activeWorkout.exercises.push(exercise);
+  writeAll([activeWorkout, ...filtered]);
 }
 
 export function getActiveWorkout(): Workout | null {

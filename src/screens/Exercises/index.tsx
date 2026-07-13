@@ -1,7 +1,7 @@
 import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {FlashList} from '@shopify/flash-list';
-import {colors, radius, spacing} from '@/theme';
+import {colors, spacing} from '@/theme';
 import {useExercises} from '@/hooks/useExercises';
 import type {Exercise, MuscleGroup} from '@/api/exercises';
 import Button from '@/components/Button';
@@ -20,6 +20,8 @@ type Grouped = Partial<Record<MuscleGroup, Exercise[]>>;
 export type Row =
   | {type: 'header'; title: string; key: string}
   | {type: 'exercise'; exercise: Exercise; key: string};
+
+const Separator = () => <View style={styles.separator} />;
 
 function ExercisesScreen() {
   const {data, isLoading, isError} = useExercises();
@@ -58,7 +60,6 @@ function ExercisesScreen() {
       })),
     ];
   });
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={{padding: spacing.md}}>
@@ -71,7 +72,7 @@ function ExercisesScreen() {
         data={rows}
         keyExtractor={item => item.key}
         renderItem={({item}) => <ExerciseRow row={item} />}
-        ItemSeparatorComponent={() => <View style={{height: spacing.sm}} />}
+        ItemSeparatorComponent={Separator}
         contentContainerStyle={{padding: spacing.md}}
       />
     </SafeAreaView>
@@ -95,38 +96,5 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 16,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surface,
-    padding: spacing.md,
-    borderRadius: radius.md,
-  },
-  rowContent: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  name: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  muscleGroup: {
-    color: colors.textMuted,
-    fontSize: 12,
-    textTransform: 'capitalize',
-  },
-  categoryChip: {
-    backgroundColor: colors.surfaceElevated,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.sm,
-  },
-  categoryText: {
-    color: colors.textMuted,
-    fontSize: 12,
-    textTransform: 'capitalize',
-    letterSpacing: 0.5,
-  },
+  separator: {height: spacing.sm},
 });

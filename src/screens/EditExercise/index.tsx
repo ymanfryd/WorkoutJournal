@@ -53,7 +53,7 @@ function EditExerciseScreen() {
           <Text style={styles.close}>Close</Text>
         </Pressable>
         <Text style={styles.title}>New exercise</Text>
-        <View style={{width: 50}} />
+        <View style={styles.w50} />
       </View>
 
       <ScrollView contentContainerStyle={styles.form}>
@@ -195,4 +195,5 @@ const styles = StyleSheet.create({
   footer: {
     padding: spacing.md,
   },
+  w50: {width: 50},
 });
