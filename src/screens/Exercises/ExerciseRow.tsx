@@ -1,4 +1,4 @@
-import {colors, radius, spacing} from '@/theme';
+import {colors, spacing} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
 import ExerciseCard from './ExerciseCard';
 import {Row} from '.';
@@ -30,21 +30,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 1,
-  },
-  deleteZone: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: 80,
-    backgroundColor: colors.danger,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.md,
-  },
-  deleteText: {
-    color: colors.text,
-    fontSize: 14,
-    fontWeight: '600',
   },
 });

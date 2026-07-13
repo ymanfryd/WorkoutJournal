@@ -1,7 +1,7 @@
 import {haptics} from '@/haptics';
 import {colors, radius, spacing} from '@/theme';
 import React from 'react';
-import {Pressable, StyleSheet, Text} from 'react-native';
+import {ActivityIndicator, Pressable, StyleSheet, Text} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -11,10 +11,11 @@ import Animated, {
 type Props = {
   onPress: () => void;
   text: string;
+  loading?: boolean;
   disabled?: boolean;
 };
 
-function Button({onPress, text, disabled = false}: Props) {
+function Button({onPress, text, loading = false, disabled = false}: Props) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -38,7 +39,11 @@ function Button({onPress, text, disabled = false}: Props) {
           animatedStyle,
           disabled && styles.buttonDisabled,
         ]}>
-        <Text style={styles.buttonText}>{text}</Text>
+        {loading ? (
+          <ActivityIndicator color={colors.text} size={35} />
+        ) : (
+          <Text style={styles.buttonText}>{text}</Text>
+        )}
       </Animated.View>
     </Pressable>
   );

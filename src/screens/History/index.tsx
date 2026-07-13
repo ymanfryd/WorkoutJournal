@@ -3,8 +3,6 @@ import {Text, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {colors, spacing} from '@/theme';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useWorkouts} from '@/hooks/useWorkouts';
-import Button from '@/components/Button';
-import {useCreateWorkout} from '@/hooks/useCreateWorkout';
 import WorkoutCard from './WorkoutCard';
 import {StaticParamList, useNavigation} from '@react-navigation/native';
 import {useDeleteWorkout} from '@/hooks/useDeleteWorkout';
@@ -17,13 +15,12 @@ type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
 
 function HistoryScreen() {
   const {data: workouts, isLoading, isError} = useWorkouts();
-  const createWorkout = useCreateWorkout();
   const {mutate: deleteWorkoutMutation} = useDeleteWorkout();
   const navigation =
     useNavigation<NativeStackNavigationProp<HistoryStackParamList>>();
 
   function navigateToWorkout(id: string) {
-    navigation.navigate('Workout', {id});
+    navigation.navigate('WorkoutDetail', {id});
   }
 
   function onDelete(id: string) {
@@ -55,16 +52,6 @@ function HistoryScreen() {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <Button
-        disabled={createWorkout.isPending}
-        text="+ Create workout"
-        onPress={() => {
-          createWorkout.mutate({exercises: []});
-        }}
-      />
-      {createWorkout.isError && (
-        <Text style={styles.errorText}>{createWorkout.error.message}</Text>
-      )}
       <FlashList
         data={workouts}
         keyExtractor={item => item.id}
