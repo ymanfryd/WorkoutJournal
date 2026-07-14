@@ -76,15 +76,22 @@ export async function deleteWorkout(id: string): Promise<void> {
   writeAll(updated);
 }
 
-export async function addExerciseToActiveWorkout(exercise: WorkoutExercise) {
+export async function addExerciseToActiveWorkout(
+  exerciseId: string,
+): Promise<void> {
   await delay(200);
-  const activeWorkout = getActiveWorkout();
-  if (!activeWorkout) {
-    throw new Error('No active workout');
-  }
-  const filtered = readAll().filter(workout => workout !== activeWorkout);
-  activeWorkout.exercises.push(exercise);
-  writeAll([activeWorkout, ...filtered]);
+  const workouts = readAll();
+  const active = workouts.find(w => w.isActive);
+  if (!active) throw new Error('No active workout');
+
+  const newExercise: WorkoutExercise = {
+    id: Date.now().toString(),
+    exerciseId,
+    sets: [],
+  };
+  active.exercises.push(newExercise);
+
+  writeAll(workouts);
 }
 
 export function getActiveWorkout(): Workout | null {

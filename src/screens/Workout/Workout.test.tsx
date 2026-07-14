@@ -18,7 +18,8 @@ describe('WorkoutScreen', () => {
 
   it('renders the title and CTA', async () => {
     const {getByText, findByText} = renderWithQuery(<WorkoutScreen />);
-    getByText('Workout');
-    await findByText('Create empty workout');
+    getByText('Ready to train?');
+    getByText('Start an empty workout and add exercises as you go');
+    await findByText('Start empty workout');
   });
 });
