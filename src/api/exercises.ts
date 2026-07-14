@@ -139,3 +139,13 @@ export async function getExercises(): Promise<Exercise[]> {
   await delay(300);
   return readAll();
 }
+
+export async function getExerciseById(id: string) {
+  await delay(200);
+  const allExercises = readAll();
+  const exercise = allExercises.find(ex => ex.id === id);
+  if (!exercise) {
+    throw new Error('Exercise not found');
+  }
+  return exercise;
+}
