@@ -23,7 +23,7 @@ export type Workout = {
 };
 
 const KEY = 'workouts';
-const DEFAULT_WORKOUTS: Workout[] = Array.from({length: 500}, (_, i) => ({
+const DEFAULT_WORKOUTS: Workout[] = Array.from({length: 10}, (_, i) => ({
   id: (i + 1).toString(),
   date: Date.now() - i * 24 * 60 * 60 * 1000,
   exercises: [],
@@ -98,4 +98,94 @@ export function getActiveWorkout(): Workout | null {
   const workouts = readAll();
   const activeWorkout = workouts.find(workout => workout.isActive);
   return activeWorkout ?? null;
+}
+
+export async function addSetToExercise(exerciseId: string) {
+  await delay(150);
+  const workouts = readAll();
+  const activeWorkout = workouts.find(workout => workout.isActive);
+  const exercise = activeWorkout?.exercises.find(we => we.id === exerciseId);
+  if (!exercise) {
+    throw new Error('Exercise not found');
+  }
+  const newSet: WorkoutSet = {
+    id: Date.now().toString(),
+    reps: 0,
+    weight: 0,
+    completed: false,
+  };
+  exercise.sets.push(newSet);
+  writeAll(workouts);
+}
+
+export async function updateSet(input: {
+  workoutExerciseId: string;
+  setId: string;
+  patch: Partial<WorkoutSet>;
+}) {
+  await delay(150);
+  const {workoutExerciseId, setId, patch} = input;
+  const workouts = readAll();
+  const activeWorkout = workouts.find(workout => workout.isActive);
+  const exercise = activeWorkout?.exercises.find(
+    we => we.id === workoutExerciseId,
+  );
+  if (!exercise) {
+    throw new Error('Exercise not found');
+  }
+  const set = exercise.sets.find(s => s.id === setId);
+  if (!set) {
+    throw new Error('Set not found');
+  }
+  Object.assign(set, patch);
+  writeAll(workouts);
+}
+
+export async function deleteSet(input: {
+  workoutExerciseId: string;
+  setId: string;
+}) {
+  await delay(150);
+  const {workoutExerciseId, setId} = input;
+  const workouts = readAll();
+  const activeWorkout = workouts.find(workout => workout.isActive);
+  const exercise = activeWorkout?.exercises.find(
+    we => we.id === workoutExerciseId,
+  );
+  if (!exercise) {
+    throw new Error('Exercise not found');
+  }
+  const set = exercise.sets.find(s => s.id === setId);
+  if (!set) {
+    throw new Error('Set not found');
+  }
+  exercise.sets = exercise.sets.filter(s => s.id !== setId);
+  writeAll(workouts);
+}
+
+export async function finishActiveWorkout() {
+  await delay(150);
+  const workouts = readAll();
+  const activeWorkout = workouts.find(workout => workout.isActive);
+  if (!activeWorkout) throw new Error('No active workout');
+  activeWorkout.duration = Date.now() - activeWorkout.date;
+  activeWorkout.isActive = false;
+  writeAll(workouts);
+}
+
+export async function deleteExerciseFromActiveWorkout(
+  workoutExerciseId: string,
+) {
+  await delay(150);
+  const workouts = readAll();
+  const activeWorkout = workouts.find(workout => workout.isActive);
+  if (!activeWorkout) throw new Error('No active workout');
+  const exercise = activeWorkout.exercises.find(
+    we => we.id === workoutExerciseId,
+  );
+  if (!exercise) throw new Error('Exercise not found');
+  activeWorkout.exercises = activeWorkout.exercises.filter(
+    we => we.id !== workoutExerciseId,
+  );
+  writeAll(workouts);
 }

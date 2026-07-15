@@ -1,7 +1,13 @@
 import {haptics} from '@/haptics';
 import {colors, radius} from '@/theme';
 import React from 'react';
-import {StyleSheet, View, Pressable, Text} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Pressable,
+  Text,
+  ActivityIndicator,
+} from 'react-native';
 import {
   GestureDetector,
   useCompetingGestures,
@@ -23,9 +29,16 @@ type Props = {
   children: React.ReactNode;
   onPress: (id: string) => void;
   onDelete: (id: string) => void;
+  deletePending?: boolean;
 };
 
-const CardWithGesture = ({id, onPress, onDelete, children}: Props) => {
+const CardWithGesture = ({
+  id,
+  onPress,
+  onDelete,
+  deletePending,
+  children,
+}: Props) => {
   const translateX = useSharedValue(0);
   const startX = useSharedValue(0);
   const pan = usePanGesture({
@@ -61,7 +74,11 @@ const CardWithGesture = ({id, onPress, onDelete, children}: Props) => {
   return (
     <View style={styles.row}>
       <Pressable style={styles.deleteZone} onPress={() => onDelete(id)}>
-        <Text style={styles.deleteText}>Delete</Text>
+        {deletePending ? (
+          <ActivityIndicator color={colors.text} />
+        ) : (
+          <Text style={styles.deleteText}>Delete</Text>
+        )}
       </Pressable>
       <GestureDetector gesture={composed}>
         <Animated.View style={[styles.cardWrapper, cardStyle]}>
