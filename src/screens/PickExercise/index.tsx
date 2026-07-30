@@ -12,8 +12,8 @@ import {
 import {useNavigation} from '@react-navigation/native';
 
 const PickExercise = () => {
-  const {data, isLoading, isError} = useExercises();
-  const {mutate, isPending} = useAddExerciseToWorkout();
+  const {data, isLoading} = useExercises();
+  const {mutate} = useAddExerciseToWorkout();
   const navigation = useNavigation();
   if (isLoading) return <ActivityIndicator />;
   return (

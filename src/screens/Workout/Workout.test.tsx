@@ -1,4 +1,3 @@
-import {render, fireEvent} from '@testing-library/react-native';
 import WorkoutScreen from './index';
 import {renderWithQuery} from '@/utils/test-utils';
 

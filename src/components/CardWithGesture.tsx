@@ -45,7 +45,7 @@ const CardWithGesture = ({
   useEffect(() => {
     translateX.value = 0;
     startX.value = 0;
-  }, [id]);
+  }, [id, startX, translateX]);
 
   const pan = usePanGesture({
     activeOffsetX: [-10, 10],

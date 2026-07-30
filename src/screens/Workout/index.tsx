@@ -349,12 +349,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  setNumber: {
-    color: colors.textMuted,
-    fontSize: 14,
-    fontWeight: '600',
-    width: 24,
-  },
   setInput: {
     backgroundColor: colors.surfaceElevated,
     color: colors.text,
@@ -364,38 +358,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     minWidth: 60,
     textAlign: 'center',
-  },
-  setNonEditable: {
-    backgroundColor: 'transparent',
-    color: colors.textMuted,
-  },
-  setInputCompleted: {
-    opacity: 0.6,
-  },
-  checkbox: {
-    width: 28,
-    height: 28,
-    borderRadius: radius.sm,
-    borderWidth: 2,
-    borderColor: colors.textMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: colors.success,
-    borderColor: colors.success,
-  },
-  checkmark: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  setDelete: {
-    padding: spacing.xs,
-  },
-  setDeleteText: {
-    color: colors.danger,
-    fontSize: 18,
-    fontWeight: '600',
   },
 });
