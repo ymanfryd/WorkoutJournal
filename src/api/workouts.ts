@@ -100,6 +100,13 @@ export function getActiveWorkout(): Workout | null {
   return activeWorkout ?? null;
 }
 
+export async function getWorkoutById(id: string): Promise<Workout | null> {
+  await delay(300);
+  const workouts = readAll();
+  const workout = workouts.find(w => w.id === id);
+  return workout ?? null;
+}
+
 export async function addSetToExercise(exerciseId: string) {
   await delay(150);
   const workouts = readAll();

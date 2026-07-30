@@ -21,23 +21,7 @@ import {useAddSet} from '@/hooks/useAddSet';
 import {useDeleteExerciseFromWorkout} from '@/hooks/useDeleteExerciseFromWorkout';
 import {useFinishWorkout} from '@/hooks/useFinishWorkout';
 import {useDeleteSet} from '@/hooks/useDeleteSet';
-
-function formatWorkoutHeader(ts: number): string {
-  const date = new Date(ts);
-  const time = date.toLocaleTimeString('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-  const today = new Date();
-  const isSameDay = date.toDateString() === today.toDateString();
-
-  const dayLabel = isSameDay
-    ? 'Today'
-    : date.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
-
-  return `${dayLabel}, ${time}`;
-}
+import {formatDate} from '@/utils/formatDate';
 
 const InputRow = ({
   label,
@@ -174,7 +158,7 @@ function ActiveWorkout({workout}: {workout: Workout}) {
     <View style={styles.awContainer}>
       <ScrollView contentContainerStyle={styles.awContent}>
         <View style={styles.awHeader}>
-          <Text style={styles.awMeta}>{formatWorkoutHeader(workout.date)}</Text>
+          <Text style={styles.awMeta}>{formatDate(workout.date)}</Text>
           <Text style={styles.awTitle}>Workout</Text>
         </View>
 

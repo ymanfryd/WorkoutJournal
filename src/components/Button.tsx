@@ -13,9 +13,16 @@ type Props = {
   text: string;
   loading?: boolean;
   disabled?: boolean;
+  color?: string;
 };
 
-function Button({onPress, text, loading = false, disabled = false}: Props) {
+function Button({
+  onPress,
+  text,
+  loading = false,
+  disabled = false,
+  color = colors.primary,
+}: Props) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -36,6 +43,9 @@ function Button({onPress, text, loading = false, disabled = false}: Props) {
       <Animated.View
         style={[
           styles.button,
+          {
+            backgroundColor: color,
+          },
           animatedStyle,
           disabled && styles.buttonDisabled,
         ]}>
@@ -56,7 +66,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   button: {
-    backgroundColor: colors.primary,
     paddingVertical: spacing.md,
     borderRadius: radius.md,
     alignItems: 'center',
