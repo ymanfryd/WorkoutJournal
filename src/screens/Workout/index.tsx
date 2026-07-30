@@ -22,6 +22,7 @@ import {useDeleteExerciseFromWorkout} from '@/hooks/useDeleteExerciseFromWorkout
 import {useFinishWorkout} from '@/hooks/useFinishWorkout';
 import {useDeleteSet} from '@/hooks/useDeleteSet';
 import {formatDate} from '@/utils/formatDate';
+import {ExerciseCategory} from '@/api/exercises';
 
 const InputRow = ({
   label,
@@ -50,9 +51,11 @@ const InputRow = ({
 
 function SetRow({
   set,
+  category,
   workoutExerciseId,
 }: {
   set: WorkoutSet;
+  category: ExerciseCategory;
   workoutExerciseId: string;
 }) {
   const [weight, setWeight] = useState(set.weight.toString());
@@ -62,18 +65,20 @@ function SetRow({
 
   return (
     <View style={styles.setRow}>
-      <InputRow
-        label={'Weight'}
-        value={weight}
-        setValue={setWeight}
-        onEndEditing={() =>
-          update({
-            workoutExerciseId,
-            setId: set.id,
-            patch: {weight: parseInt(weight, 10) || 0},
-          })
-        }
-      />
+      {category !== 'bodyweight' && (
+        <InputRow
+          label={'Weight'}
+          value={weight}
+          setValue={setWeight}
+          onEndEditing={() =>
+            update({
+              workoutExerciseId,
+              setId: set.id,
+              patch: {weight: parseInt(weight, 10) || 0},
+            })
+          }
+        />
+      )}
       <InputRow
         label={'Reps'}
         value={reps}
@@ -106,9 +111,11 @@ function SetRow({
 function WorkoutExerciseCard({
   workoutExercise,
   exerciseName,
+  exerciseCategory,
 }: {
   workoutExercise: WorkoutExercise;
   exerciseName: string;
+  exerciseCategory: ExerciseCategory;
 }) {
   const {mutate: addSet, isPending: isAdding} = useAddSet();
   const {mutate: deleteExercise, isPending: isDeleting} =
@@ -130,6 +137,7 @@ function WorkoutExerciseCard({
           <SetRow
             key={set.id}
             set={set}
+            category={exerciseCategory}
             workoutExerciseId={workoutExercise.id}
           />
         ))}
@@ -180,6 +188,7 @@ function ActiveWorkout({workout}: {workout: Workout}) {
                     key={we.id}
                     workoutExercise={we}
                     exerciseName={ex.name}
+                    exerciseCategory={ex.category}
                   />
                 );
             })}

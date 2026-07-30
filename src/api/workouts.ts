@@ -115,10 +115,12 @@ export async function addSetToExercise(exerciseId: string) {
   if (!exercise) {
     throw new Error('Exercise not found');
   }
+  const previousSet = exercise.sets[exercise.sets.length - 1];
+
   const newSet: WorkoutSet = {
     id: Date.now().toString(),
-    reps: 0,
-    weight: 0,
+    reps: previousSet?.reps || 0,
+    weight: previousSet?.weight || 0,
     completed: false,
   };
   exercise.sets.push(newSet);
