@@ -7,9 +7,10 @@ type Props = {
   workout: Workout;
   onPress: (id: string) => void;
   onDelete: (id: string) => void;
+  deletePending: boolean;
 };
 
-const WorkoutCard = ({workout, onPress, onDelete}: Props) => {
+const WorkoutCard = ({workout, onPress, onDelete, deletePending}: Props) => {
   function formatDate(ts: number) {
     return new Date(ts).toLocaleDateString('ru-RU', {
       day: 'numeric',
@@ -17,7 +18,11 @@ const WorkoutCard = ({workout, onPress, onDelete}: Props) => {
     });
   }
   return (
-    <CardWithGesture id={workout.id} onPress={onPress} onDelete={onDelete}>
+    <CardWithGesture
+      id={workout.id}
+      onPress={onPress}
+      onDelete={onDelete}
+      deletePending={deletePending}>
       <View style={styles.card}>
         <View style={styles.cardContent}>
           <Text style={styles.date}>{formatDate(workout.date)}</Text>

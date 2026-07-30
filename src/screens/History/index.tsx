@@ -15,7 +15,8 @@ type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
 
 function HistoryScreen() {
   const {data: workouts, isLoading, isError} = useWorkouts();
-  const {mutate: deleteWorkoutMutation} = useDeleteWorkout();
+  const {mutate: deleteWorkoutMutation, isPending: deletePending} =
+    useDeleteWorkout();
   const navigation =
     useNavigation<NativeStackNavigationProp<HistoryStackParamList>>();
 
@@ -30,6 +31,7 @@ function HistoryScreen() {
   function renderItem({item}: {item: Workout}) {
     return (
       <WorkoutCard
+        deletePending={deletePending}
         workout={item}
         onPress={navigateToWorkout}
         onDelete={onDelete}
@@ -53,6 +55,7 @@ function HistoryScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <FlashList
+        drawDistance={800}
         data={workouts}
         keyExtractor={item => item.id}
         renderItem={renderItem}

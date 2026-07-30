@@ -193,6 +193,7 @@ function ActiveWorkout({workout}: {workout: Workout}) {
               if (ex)
                 return (
                   <WorkoutExerciseCard
+                    key={we.id}
                     workoutExercise={we}
                     exerciseName={ex.name}
                   />

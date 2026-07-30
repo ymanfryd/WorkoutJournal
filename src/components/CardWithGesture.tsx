@@ -1,6 +1,6 @@
 import {haptics} from '@/haptics';
 import {colors, radius} from '@/theme';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   StyleSheet,
   View,
@@ -41,6 +41,12 @@ const CardWithGesture = ({
 }: Props) => {
   const translateX = useSharedValue(0);
   const startX = useSharedValue(0);
+
+  useEffect(() => {
+    translateX.value = 0;
+    startX.value = 0;
+  }, [id]);
+
   const pan = usePanGesture({
     activeOffsetX: [-10, 10],
     onBegin: () => {
