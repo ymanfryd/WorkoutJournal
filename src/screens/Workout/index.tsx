@@ -166,8 +166,19 @@ function ActiveWorkout({workout}: {workout: Workout}) {
     <View style={styles.awContainer}>
       <ScrollView contentContainerStyle={styles.awContent}>
         <View style={styles.awHeader}>
-          <Text style={styles.awMeta}>{formatDate(workout.date)}</Text>
-          <Text style={styles.awTitle}>Workout</Text>
+          <View style={styles.awHeaderText}>
+            <Text style={styles.awMeta}>{formatDate(workout.date)}</Text>
+            <Text style={styles.awTitle}>Workout</Text>
+          </View>
+          <Pressable
+            style={({pressed}) => [
+              styles.addExerciseButton,
+              pressed && styles.addExerciseButtonPressed,
+            ]}
+            onPress={() => navigation.navigate('PickExercise')}
+            hitSlop={8}>
+            <Text style={styles.addExerciseButtonText}>+</Text>
+          </Pressable>
         </View>
 
         <View style={styles.awSection}>
@@ -192,23 +203,16 @@ function ActiveWorkout({workout}: {workout: Workout}) {
                   />
                 );
             })}
-          <Pressable
-            style={styles.addSetButton}
-            disabled={isFinishing}
-            onPress={() => finishWorkout()}>
-            {isFinishing ? (
-              <ActivityIndicator color={colors.primary} />
-            ) : (
-              <Text style={styles.addSetText}>Finish workout</Text>
-            )}
-          </Pressable>
         </View>
       </ScrollView>
 
       <View style={styles.awFooter}>
         <Button
-          text="+ Add exercise"
-          onPress={() => navigation.navigate('PickExercise')}
+          text="Finish workout"
+          color={colors.danger}
+          loading={isFinishing}
+          disabled={isFinishing || workout.exercises.length === 0}
+          onPress={() => finishWorkout()}
         />
       </View>
     </View>
@@ -277,7 +281,31 @@ const styles = StyleSheet.create({
   },
 
   awHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  awHeaderText: {
     gap: spacing.xs,
+    flex: 1,
+  },
+  addExerciseButton: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addExerciseButtonPressed: {
+    backgroundColor: colors.surfaceElevated,
+  },
+  addExerciseButtonText: {
+    color: colors.primary,
+    fontSize: 24,
+    fontWeight: '600',
+    lineHeight: 26,
   },
   awMeta: {
     color: colors.textMuted,
