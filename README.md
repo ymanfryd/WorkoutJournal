@@ -9,9 +9,15 @@ A minimalist strength-training tracker built with modern React Native. Log worko
 
 ## Screenshots
 
-| Sign in                                 | Workout                                  | History                                  | Detail                                 | Stats                              |
-| --------------------------------------- | ---------------------------------------- | ---------------------------------------- | -------------------------------------- | ---------------------------------- |
+| Sign in                                 | Workout                                  | History                                  | Detail                                 | Stats                                |
+| --------------------------------------- | ---------------------------------------- | ---------------------------------------- | -------------------------------------- | ------------------------------------ |
 | ![Sign in](docs/screenshots/signin.png) | ![Workout](docs/screenshots/workout.png) | ![History](docs/screenshots/history.png) | ![Detail](docs/screenshots/detail.png) | ![Stats](docs/screenshots/stats.png) |
+
+## Try it
+
+[Download the latest Android APK](https://github.com/ymanfryd/WorkoutJournal/releases/latest/download/WorkoutJournal.apk) (arm64/armv7 only).
+
+Or grab any version from [Releases](https://github.com/ymanfryd/WorkoutJournal/releases).
 
 ## What it does
 
