@@ -23,6 +23,7 @@ import {useFinishWorkout} from '@/hooks/useFinishWorkout';
 import {useDeleteSet} from '@/hooks/useDeleteSet';
 import {formatDate} from '@/utils/formatDate';
 import {ExerciseCategory} from '@/api/exercises';
+import RestTimer from '@/components/RestTimer';
 
 const InputRow = ({
   label,
@@ -157,10 +158,13 @@ function WorkoutExerciseCard({
   );
 }
 
+const REST_PRESETS = [60, 90, 120];
+
 function ActiveWorkout({workout}: {workout: Workout}) {
   const navigation = useNavigation();
   const {data: exercises, isLoading} = useExercises();
   const {mutate: finishWorkout, isPending: isFinishing} = useFinishWorkout();
+  const [restDuration, setRestDuration] = useState<number | null>(null);
 
   return (
     <View style={styles.awContainer}>
@@ -207,6 +211,28 @@ function ActiveWorkout({workout}: {workout: Workout}) {
       </ScrollView>
 
       <View style={styles.awFooter}>
+        {restDuration ? (
+          <RestTimer
+            duration={restDuration}
+            onComplete={() => setRestDuration(null)}
+            onCancel={() => setRestDuration(null)}
+          />
+        ) : (
+          <View style={styles.restPresets}>
+            <Text style={styles.restPresetsLabel}>Rest</Text>
+            {REST_PRESETS.map(seconds => (
+              <Pressable
+                key={seconds}
+                onPress={() => setRestDuration(seconds)}
+                style={({pressed}) => [
+                  styles.restPreset,
+                  pressed && styles.restPresetPressed,
+                ]}>
+                <Text style={styles.restPresetText}>{seconds}s</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
         <Button
           text="Finish workout"
           color={colors.danger}
@@ -358,6 +384,34 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     borderTopWidth: StyleSheet.hairlineWidth,
     backgroundColor: colors.background,
+    gap: spacing.sm,
+  },
+  restPresets: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  restPresetsLabel: {
+    color: colors.textMuted,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontWeight: '600',
+    marginRight: 'auto',
+  },
+  restPreset: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+  },
+  restPresetPressed: {
+    backgroundColor: colors.surfaceElevated,
+  },
+  restPresetText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '600',
   },
   addSetButton: {
     paddingVertical: spacing.sm,
