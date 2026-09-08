@@ -66,3 +66,16 @@ jest.mock('react-native-gesture-handler', () => {
 jest.mock('@shopify/flash-list', () => ({
   FlashList: require('react-native').FlatList,
 }));
+
+jest.mock('@shopify/react-native-skia', () => ({
+  Canvas: ({children}) => children,
+  Circle: () => null,
+  RoundedRect: () => null,
+  Rect: () => null,
+  Path: () => null,
+  Skia: {
+    Path: {
+      Make: () => ({addArc: () => {}}),
+    },
+  },
+}));

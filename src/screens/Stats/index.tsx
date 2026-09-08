@@ -29,10 +29,7 @@ function computeStats(workouts: Workout[]): Stats {
   return {
     total: completed.length,
     thisWeek: completed.filter(w => w.date > oneWeekAgo).length,
-    totalExercises: completed.reduce(
-      (sum, w) => sum + w.exercises.length,
-      0,
-    ),
+    totalExercises: completed.reduce((sum, w) => sum + w.exercises.length, 0),
     totalSets: completed.reduce(
       (sum, w) => sum + w.exercises.reduce((s, e) => s + e.sets.length, 0),
       0,
@@ -48,7 +45,8 @@ function computeWeeklyCounts(workouts: Workout[]): number[] {
   for (const w of completed) {
     const weeksAgo = Math.floor((now - w.date) / WEEK_MS);
     if (weeksAgo >= 0 && weeksAgo < WEEKS_TO_SHOW) {
-      counts[WEEKS_TO_SHOW - 1 - weeksAgo]++;
+      const idx = WEEKS_TO_SHOW - 1 - weeksAgo;
+      counts[idx] = (counts[idx] ?? 0) + 1;
     }
   }
 
@@ -58,10 +56,7 @@ function computeWeeklyCounts(workouts: Workout[]): number[] {
 function StatsScreen() {
   const {data: workouts, isLoading} = useWorkouts();
 
-  const stats = useMemo(
-    () => computeStats(workouts ?? []),
-    [workouts],
-  );
+  const stats = useMemo(() => computeStats(workouts ?? []), [workouts]);
   const weeklyCounts = useMemo(
     () => computeWeeklyCounts(workouts ?? []),
     [workouts],
@@ -121,10 +116,11 @@ const CHART_PADDING = 12;
 const BAR_GAP = 8;
 
 function WeeklyChart({counts}: {counts: number[]}) {
-  const max = Math.max(...counts, 1);
+  const max = Math.max(...counts.map(c => c ?? 0), 1);
   const chartWidth = 300;
   const barCount = counts.length;
-  const barWidth = (chartWidth - CHART_PADDING * 2 - BAR_GAP * (barCount - 1)) / barCount;
+  const barWidth =
+    (chartWidth - CHART_PADDING * 2 - BAR_GAP * (barCount - 1)) / barCount;
 
   return (
     <View style={styles.chartWrapper}>
