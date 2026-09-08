@@ -23,12 +23,7 @@ export type Workout = {
 };
 
 const KEY = 'workouts';
-const DEFAULT_WORKOUTS: Workout[] = Array.from({length: 10}, (_, i) => ({
-  id: (i + 1).toString(),
-  date: Date.now() - i * 24 * 60 * 60 * 1000,
-  exercises: [],
-  isActive: false,
-}));
+const DEFAULT_WORKOUTS: Workout[] = [];
 
 function readAll(): Workout[] {
   const raw = storage.getString(KEY);
