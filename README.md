@@ -1,97 +1,148 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Workout Journal
 
-# Getting Started
+A minimalist strength-training tracker built with modern React Native. Log workouts, track sets and reps, and see your history — all offline-first, with a dark theme and native-feeling gestures.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+![Platform iOS](https://img.shields.io/badge/iOS-17%2B-black)
+![Platform Android](https://img.shields.io/badge/Android-8%2B-green)
+![React Native 0.85](https://img.shields.io/badge/React%20Native-0.85-61dafb)
+![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6)
 
-## Step 1: Start Metro
+## Screenshots
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+| Sign in                                 | Workout                                  | History                                  | Detail                                 | Stats                              |
+| --------------------------------------- | ---------------------------------------- | ---------------------------------------- | -------------------------------------- | ---------------------------------- |
+| ![Sign in](docs/screenshots/signin.png) | ![Workout](docs/screenshots/workout.png) | ![History](docs/screenshots/history.png) | ![Detail](docs/screenshots/detail.png) | ![Stats](docs/screenshots/stats.png) |
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## What it does
 
-```sh
-# Using npm
-npm start
+- **Start a workout** from the Workout tab — creates an empty active workout.
+- **Add exercises** from a curated library or your own custom ones.
+- **Log sets** — weight × reps, mark completed, delete individual sets.
+- **Finish workout** — captures duration, moves to History.
+- **Browse history** — swipe left on any workout to delete, tap for full breakdown.
+- **Manage exercises** — 10 preset exercises + your own custom ones, grouped by muscle.
+- **Haptic feedback** — via a custom TurboModule, real vibration on gestures and timer end.
+- **Rest timer** — quick presets (60/90/120s) with a Skia progress ring and haptic notification when done.
+- **Stats** — total workouts, weekly count, exercises and sets, plus a Skia bar chart of workouts per week.
 
-# OR using Yarn
-yarn start
-```
+Data is persisted locally with MMKV. No backend required.
 
-## Step 2: Build and run your app
+## Tech stack
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+This project was built as a hands-on tour of the modern React Native ecosystem. Highlights:
 
-### Android
+**Core**
 
-```sh
-# Using npm
-npm run android
+- React Native `0.85.3` (bare CLI, no Expo)
+- New Architecture (Bridgeless, Fabric, Hermes V1) enabled by default
+- React `19.2.3` + React Compiler (automatic memoization)
+- TypeScript `5.8` strict mode with path aliases
 
-# OR using Yarn
-yarn android
-```
+**Navigation**
 
-### iOS
+- React Navigation v7 with the **Static API**
+- Native Stack + Bottom Tabs, nested navigators, modal presentation
+- Switching pattern for auth via `groups` + `if` hooks
+- Deep linking with custom URL scheme (`workoutjournal://`)
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+**State**
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+- **TanStack Query** for server state (workouts, exercises)
+- **Zustand** + persist for auth, with **MMKV** as the sync storage backend
+- Correct query key hygiene and mutation invalidations throughout
 
-```sh
+**UI / Interactivity**
+
+- **Reanimated 4** + `react-native-worklets` for UI-thread animations
+- **Gesture Handler v3** (hook-based API) for swipe-to-delete, tap composition
+- **Skia** for the rest timer's progress ring and the weekly bar chart on Stats
+- **FlashList v2** for virtualized lists
+
+**Native modules (custom TurboModules)**
+
+- `AppInfo` — reads bundle version and identifier natively
+- `Haptics` — cross-platform haptic feedback via `UIImpactFeedbackGenerator` (iOS) and `Vibrator` API with waveform patterns (Android)
+
+**Build & CI**
+
+- **Fastlane** with lanes for iOS and Android debug/release builds
+- **GitHub Actions** running lint + type-check on every PR
+
+**Tests**
+
+- **Jest** + **React Native Testing Library** for component tests
+- **Maestro** for end-to-end flows (login, create workout)
+
+## Requirements
+
+- macOS with **Xcode 26+**
+- **Android Studio** with SDK 36 and NDK 27
+- **Node 22+**
+- **JDK 17** (`brew install openjdk@17`)
+- **Ruby 3.3+** with `bundler` (for `pod install`)
+- Physical device recommended for haptic testing (simulators don't vibrate)
+
+## Getting started
+
+```bash
+# 1. Install JS dependencies
+npm install
+
+# 2. Install iOS pods
+cd ios
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
 bundle exec pod install
+cd ..
+
+# 3. Run
+npm run android   # or npm run ios
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+On some setups Xcode 26 writes `objectVersion = 70` to the Xcode project, which the current `xcodeproj` gem doesn't fully support. If `pod install` fails with that error, downgrade the version in `ios/WorkoutJournal.xcodeproj/project.pbxproj` to `56` before running `pod install`, then let Xcode upgrade it back on open.
 
-```sh
-# Using npm
-npm run ios
+## Testing
 
-# OR using Yarn
-yarn ios
+```bash
+npm test                       # Jest unit + component tests
+maestro test .maestro/         # E2E flows (requires simulator with app installed)
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## Project structure
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```
+src/
+├── api/           # data-layer functions (pure async, MMKV-backed)
+├── components/    # reusable UI
+├── haptics/       # public wrapper over Haptics TurboModule
+├── hooks/         # TanStack Query hooks
+├── navigation/    # RootStack, RootTabs, HistoryStack
+├── screens/       # feature screens
+├── specs/         # TurboModule TS specs (Codegen input)
+├── stores/        # Zustand stores
+├── storage/       # MMKV singleton
+├── theme/         # design tokens (dark theme)
+├── types/         # global type augmentations
+└── utils/         # small helpers
+```
 
-## Step 3: Modify your app
+Native code lives in:
 
-Now that you have successfully run the app, let's make changes!
+- `android/app/src/main/java/com/workoutjournal/modules/` — Kotlin modules
+- `ios/modules/` — Obj-C++ modules
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Known limitations
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+Honest list of what's rough or unfinished:
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+- **Time-based exercises** (plank, hold) reuse the `reps` field as seconds. A proper `measurementType` field on `Exercise` would be cleaner but touches models, forms, and rendering.
+- **Auth is mocked** — Sign In toggles a flag, no real backend or credentials.
+- **Deep-link cold-start with a logged-out user** may not always resume to the requested screen after sign-in.
+- **`ExerciseCard` in WorkoutDetail** currently reuses the library card; a lighter read-only variant would be cleaner.
 
-## Congratulations! :tada:
+## Notes on the build
 
-You've successfully run and modified your React Native App. :partying_face:
+The project intentionally uses the newest RN 0.85 defaults (Bridgeless, Fabric, JSI-only) rather than legacy fallbacks. That surfaces some rough edges in the ecosystem — `react-native-mmkv` v4 pulls in `react-native-nitro-modules`, Reanimated 4 splits worklets into a separate package, Gesture Handler v3 deprecates the old builder API. All of it is documented in code and in the git history.
 
-### Now what?
+## License
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+MIT — do whatever you want with it.
