@@ -12,7 +12,7 @@ type Props = {
 
 const WorkoutCard = ({workout, onPress, onDelete, deletePending}: Props) => {
   function formatDate(ts: number) {
-    return new Date(ts).toLocaleDateString('ru-RU', {
+    return new Date(ts).toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'short',
     });

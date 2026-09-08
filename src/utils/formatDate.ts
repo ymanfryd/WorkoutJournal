@@ -1,6 +1,6 @@
 export function formatDate(ts: number): string {
   const date = new Date(ts);
-  const time = date.toLocaleTimeString('ru-RU', {
+  const time = date.toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
   });
@@ -10,7 +10,7 @@ export function formatDate(ts: number): string {
 
   const dayLabel = isSameDay
     ? 'Today'
-    : date.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
+    : date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
 
   return `${dayLabel}, ${time}`;
 }
