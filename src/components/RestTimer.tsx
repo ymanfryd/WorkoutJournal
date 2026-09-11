@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import {scheduleOnRN} from 'react-native-worklets';
-import ProgressRing from './ProgressRing';
+import ProgressRing from '../ui/ProgressRing';
 import {haptics} from '@/haptics';
 import {colors, radius, spacing} from '@/theme';
 

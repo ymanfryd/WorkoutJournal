@@ -5,7 +5,7 @@ import {
   useNavigation,
   type StaticScreenProps,
 } from '@react-navigation/native';
-import Button from '@/components/Button';
+import Button from '@/ui/Button';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useDeleteWorkout} from '@/hooks/useDeleteWorkout';
 import {HistoryStack} from '@/navigation/HistoryStack';

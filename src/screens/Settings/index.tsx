@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {colors, spacing} from '@/theme';
-import Button from '@/components/Button';
+import Button from '@/ui/Button';
 import {useAuthStore} from '@/stores/authStore';
 
 function SettingsScreen() {

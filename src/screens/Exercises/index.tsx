@@ -4,7 +4,7 @@ import {FlashList} from '@shopify/flash-list';
 import {colors, spacing} from '@/theme';
 import {useExercises} from '@/hooks/useExercises';
 import type {Exercise, MuscleGroup} from '@/api/exercises';
-import Button from '@/components/Button';
+import Button from '@/ui/Button';
 import {useNavigation} from '@react-navigation/native';
 import ExerciseRow from './ExerciseRow';
 
