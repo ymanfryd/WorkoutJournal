@@ -29,7 +29,6 @@ function ProgressRing({progress, size, strokeWidth = 12}: Props) {
 
   return (
     <Canvas style={{width: size, height: size}}>
-      {/* фоновое кольцо */}
       <Circle
         cx={center}
         cy={center}
@@ -38,7 +37,6 @@ function ProgressRing({progress, size, strokeWidth = 12}: Props) {
         style="stroke"
         strokeWidth={strokeWidth}
       />
-      {/* прогресс-арка */}
       <Path
         path={arcPath}
         color={colors.primary}
