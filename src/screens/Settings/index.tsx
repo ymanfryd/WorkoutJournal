@@ -1,37 +1,24 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {colors, spacing} from '@/theme';
+import {StyleSheet, View} from 'react-native';
+import {spacing} from '@/theme';
 import Button from '@/ui/Button';
 import {useAuthStore} from '@/stores/authStore';
+import ScreenLayout from '@/ui/ScreenLayout';
 
 function SettingsScreen() {
   const signOut = useAuthStore(s => s.signOut);
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
+    <ScreenLayout title="Settings">
       <View style={styles.signOutWrapper}>
         <Button text="Sign Out" onPress={signOut} />
       </View>
-    </View>
+    </ScreenLayout>
   );
 }
 
 export default SettingsScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-    gap: spacing.sm,
-  },
-  title: {
-    color: colors.text,
-    fontSize: 28,
-    fontWeight: '700',
-  },
   signOutWrapper: {
     width: '100%',
     paddingHorizontal: spacing.lg,

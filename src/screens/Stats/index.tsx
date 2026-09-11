@@ -6,11 +6,11 @@ import {
   Text,
   View,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {Canvas, Rect, RoundedRect} from '@shopify/react-native-skia';
 import {colors, radius, spacing} from '@/theme';
 import {useWorkouts} from '@/hooks/useWorkouts';
 import type {Workout} from '@/api/workouts';
+import ScreenLayout from '@/ui/ScreenLayout';
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const WEEKS_TO_SHOW = 6;
@@ -62,34 +62,33 @@ function StatsScreen() {
     [workouts],
   );
 
-  if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator color={colors.primary} />
-      </View>
-    );
-  }
-
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Stats</Text>
-
-        <View style={styles.grid}>
-          <StatCard label="Workouts" value={stats.total.toString()} />
-          <StatCard label="This week" value={stats.thisWeek.toString()} />
-          <StatCard label="Exercises" value={stats.totalExercises.toString()} />
-          <StatCard label="Sets" value={stats.totalSets.toString()} />
+    <ScreenLayout title={'Stats'}>
+      {isLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator />
         </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.grid}>
+            <StatCard label="Workouts" value={stats.total.toString()} />
+            <StatCard label="This week" value={stats.thisWeek.toString()} />
+            <StatCard
+              label="Exercises"
+              value={stats.totalExercises.toString()}
+            />
+            <StatCard label="Sets" value={stats.totalSets.toString()} />
+          </View>
 
-        <View style={styles.chartSection}>
-          <Text style={styles.chartLabel}>
-            Workouts per week (last {WEEKS_TO_SHOW})
-          </Text>
-          <WeeklyChart counts={weeklyCounts} />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          <View style={styles.chartSection}>
+            <Text style={styles.chartLabel}>
+              Workouts per week (last {WEEKS_TO_SHOW})
+            </Text>
+            <WeeklyChart counts={weeklyCounts} />
+          </View>
+        </ScrollView>
+      )}
+    </ScreenLayout>
   );
 }
 
@@ -163,10 +162,6 @@ function WeeklyChart({counts}: {counts: number[]}) {
 export default StatsScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   centered: {
     flex: 1,
     alignItems: 'center',
@@ -176,11 +171,6 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.md,
     gap: spacing.lg,
-  },
-  title: {
-    color: colors.text,
-    fontSize: 28,
-    fontWeight: '700',
   },
   grid: {
     flexDirection: 'row',

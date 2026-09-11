@@ -1,7 +1,6 @@
 import React from 'react';
 import {Text, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {colors, spacing} from '@/theme';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {useWorkouts} from '@/hooks/useWorkouts';
 import WorkoutCard from './WorkoutCard';
 import {StaticParamList, useNavigation} from '@react-navigation/native';
@@ -10,6 +9,7 @@ import {FlashList} from '@shopify/flash-list';
 import {Workout} from '@/api/workouts';
 import {HistoryStack} from '@/navigation/HistoryStack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import ScreenLayout from '@/ui/ScreenLayout';
 
 type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
 
@@ -39,35 +39,31 @@ function HistoryScreen() {
     );
   }
 
-  if (isLoading)
-    return (
-      <View style={styles.centeredContainer}>
-        <ActivityIndicator color={colors.primary} />
-      </View>
-    );
-  if (isError || !workouts) {
-    return (
-      <View style={styles.centeredContainer}>
-        <Text style={styles.errorText}>Failed to load workouts</Text>
-      </View>
-    );
-  }
-  if (!workouts?.length) {
-    return (
-      <View style={styles.centeredContainer}>
-        <Text style={styles.mutedText}>No workouts yet</Text>
-      </View>
-    );
-  }
   return (
-    <SafeAreaView style={styles.container}>
-      <FlashList
-        drawDistance={800}
-        data={workouts}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-      />
-    </SafeAreaView>
+    <ScreenLayout title="History">
+      {isLoading ? (
+        <View style={styles.centeredContainer}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : isError || !workouts ? (
+        <View style={styles.centeredContainer}>
+          <Text style={styles.errorText}>Failed to load workouts</Text>
+        </View>
+      ) : workouts.length === 0 ? (
+        <View style={styles.centeredContainer}>
+          <Text style={styles.mutedText}>No workouts yet</Text>
+        </View>
+      ) : (
+        <View style={styles.container}>
+          <FlashList
+            drawDistance={800}
+            data={workouts}
+            keyExtractor={item => item.id}
+            renderItem={renderItem}
+          />
+        </View>
+      )}
+    </ScreenLayout>
   );
 }
 
