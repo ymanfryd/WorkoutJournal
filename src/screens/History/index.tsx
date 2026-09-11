@@ -48,7 +48,14 @@ function HistoryScreen() {
   if (isError || !workouts) {
     return (
       <View style={styles.centeredContainer}>
-        <Text style={styles.errorText}>Не удалось загрузить тренировки</Text>
+        <Text style={styles.errorText}>Failed to load workouts</Text>
+      </View>
+    );
+  }
+  if (!workouts?.length) {
+    return (
+      <View style={styles.centeredContainer}>
+        <Text style={styles.mutedText}>No workouts yet</Text>
       </View>
     );
   }
@@ -82,6 +89,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: colors.danger,
+    fontSize: 16,
+    textAlign: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  mutedText: {
+    color: colors.textMuted,
     fontSize: 16,
     textAlign: 'center',
     paddingHorizontal: spacing.lg,

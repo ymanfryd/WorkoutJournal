@@ -31,7 +31,7 @@ describe('HistoryScreen', () => {
 
     const {findByText} = renderWithQuery(<HistoryScreen />);
 
-    expect(await findByText(/Не удалось загрузить/)).toBeTruthy();
+    expect(await findByText(/Failed to load/)).toBeTruthy();
   });
 
   it('renders workouts list on success', async () => {
