@@ -1,7 +1,7 @@
 import {colors, spacing} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Button from '@/components/Button';
+import Button from '@/ui/Button';
 import {useAuthStore} from '@/stores/authStore';
 
 function SignInScreen() {

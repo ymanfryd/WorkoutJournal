@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
-import Button from '@/components/Button';
+import Button from '@/ui/Button';
 import {colors, radius, spacing} from '@/theme';
 import {useCreateExercise} from '@/hooks/useCreateExercise';
 import type {ExerciseCategory, MuscleGroup} from '@/api/exercises';
