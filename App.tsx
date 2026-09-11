@@ -4,6 +4,7 @@ import RootStack from '@/navigation/RootStack';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {StyleSheet} from 'react-native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 const Navigation = createStaticNavigation(RootStack);
 const queryClient = new QueryClient({
@@ -12,15 +13,17 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <GestureHandlerRootView style={styles.root}>
-      <QueryClientProvider client={queryClient}>
-        <Navigation
-          linking={{
-            prefixes: ['workoutjournal://'],
-          }}
-        />
-      </QueryClientProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={styles.root}>
+        <QueryClientProvider client={queryClient}>
+          <Navigation
+            linking={{
+              prefixes: ['workoutjournal://'],
+            }}
+          />
+        </QueryClientProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 

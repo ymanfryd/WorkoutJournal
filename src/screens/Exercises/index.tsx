@@ -1,12 +1,12 @@
 import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {FlashList} from '@shopify/flash-list';
 import {colors, spacing} from '@/theme';
 import {useExercises} from '@/hooks/useExercises';
 import type {Exercise, MuscleGroup} from '@/api/exercises';
-import Button from '@/ui/Button';
 import {useNavigation} from '@react-navigation/native';
 import ExerciseRow from './ExerciseRow';
+import ScreenLayout from '@/ui/ScreenLayout';
+import IconButton from '@/ui/IconButton';
 
 const ORDER: MuscleGroup[] = [
   'chest',
@@ -27,29 +27,13 @@ function ExercisesScreen() {
   const {data, isLoading, isError} = useExercises();
   const navigation = useNavigation();
 
-  if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator color={colors.primary} />
-      </View>
-    );
-  }
-
-  if (isError || !data) {
-    return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>Failed to load exercises</Text>
-      </View>
-    );
-  }
-
-  const grouped = data.reduce<Grouped>((acc, ex) => {
+  const grouped = data?.reduce<Grouped>((acc, ex) => {
     (acc[ex.muscleGroup] ??= []).push(ex);
     return acc;
   }, {});
 
   const rows: Row[] = ORDER.flatMap(group => {
-    const exercises = grouped[group];
+    const exercises = grouped?.[group];
     if (!exercises?.length) return [];
     return [
       {type: 'header' as const, title: group, key: `header-${group}`},
@@ -61,31 +45,35 @@ function ExercisesScreen() {
     ];
   });
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={{padding: spacing.md}}>
-        <Button
-          text="+ Add exercise"
-          onPress={() => navigation.navigate('EditExercise')}
+    <ScreenLayout
+      title="Exercises"
+      rightSlot={
+        <IconButton onPress={() => navigation.navigate('EditExercise')} />
+      }>
+      {isLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : isError || !data ? (
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>Failed to load exercises</Text>
+        </View>
+      ) : (
+        <FlashList
+          data={rows}
+          keyExtractor={item => item.key}
+          renderItem={({item}) => <ExerciseRow row={item} />}
+          ItemSeparatorComponent={Separator}
+          contentContainerStyle={{padding: spacing.md}}
         />
-      </View>
-      <FlashList
-        data={rows}
-        keyExtractor={item => item.key}
-        renderItem={({item}) => <ExerciseRow row={item} />}
-        ItemSeparatorComponent={Separator}
-        contentContainerStyle={{padding: spacing.md}}
-      />
-    </SafeAreaView>
+      )}
+    </ScreenLayout>
   );
 }
 
 export default ExercisesScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   centered: {
     flex: 1,
     alignItems: 'center',

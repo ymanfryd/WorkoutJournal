@@ -1,4 +1,5 @@
 import Button from '@/ui/Button';
+import ScreenLayout from '@/ui/ScreenLayout';
 import {colors, radius, spacing} from '@/theme';
 import {
   ActivityIndicator,
@@ -24,6 +25,7 @@ import {useDeleteSet} from '@/hooks/useDeleteSet';
 import {formatDate} from '@/utils/formatDate';
 import {ExerciseCategory} from '@/api/exercises';
 import RestTimer from '@/components/RestTimer';
+import IconButton from '@/ui/IconButton';
 
 const InputRow = ({
   label,
@@ -92,19 +94,17 @@ function SetRow({
           })
         }
       />
-      {
-        <Pressable
-          disabled={setRemoving}
-          onPress={() => {
-            removeSet({workoutExerciseId, setId: set.id});
-          }}>
-          {setRemoving ? (
-            <ActivityIndicator color={colors.textMuted} />
-          ) : (
-            <Text style={styles.awExerciseMeta}>{'Remove'}</Text>
-          )}
-        </Pressable>
-      }
+      <Pressable
+        disabled={setRemoving}
+        onPress={() => {
+          removeSet({workoutExerciseId, setId: set.id});
+        }}>
+        {setRemoving ? (
+          <ActivityIndicator color={colors.textMuted} />
+        ) : (
+          <Text style={styles.awExerciseMeta}>{'Remove'}</Text>
+        )}
+      </Pressable>
     </View>
   );
 }
@@ -160,31 +160,14 @@ function WorkoutExerciseCard({
 
 const REST_PRESETS = [60, 90, 120];
 
-function ActiveWorkout({workout}: {workout: Workout}) {
-  const navigation = useNavigation();
+function ActiveWorkoutBody({workout}: {workout: Workout}) {
   const {data: exercises, isLoading} = useExercises();
   const {mutate: finishWorkout, isPending: isFinishing} = useFinishWorkout();
   const [restDuration, setRestDuration] = useState<number | null>(null);
 
   return (
-    <View style={styles.awContainer}>
+    <View style={styles.awBody}>
       <ScrollView contentContainerStyle={styles.awContent}>
-        <View style={styles.awHeader}>
-          <View style={styles.awHeaderText}>
-            <Text style={styles.awMeta}>{formatDate(workout.date)}</Text>
-            <Text style={styles.awTitle}>Workout</Text>
-          </View>
-          <Pressable
-            style={({pressed}) => [
-              styles.addExerciseButton,
-              pressed && styles.addExerciseButtonPressed,
-            ]}
-            onPress={() => navigation.navigate('PickExercise')}
-            hitSlop={8}>
-            <Text style={styles.addExerciseButtonText}>+</Text>
-          </Pressable>
-        </View>
-
         <View style={styles.awSection}>
           <Text style={styles.awSectionLabel}>Exercises</Text>
 
@@ -245,14 +228,24 @@ function ActiveWorkout({workout}: {workout: Workout}) {
   );
 }
 
+function AddExerciseButton() {
+  const navigation = useNavigation();
+  return <IconButton onPress={() => navigation.navigate('PickExercise')} />;
+}
+
 function WorkoutScreen() {
   const activeWorkout = useActiveWorkout();
   const createWorkout = useCreateWorkout();
 
+  const workout = activeWorkout.data;
+
   return (
-    <View style={styles.container}>
-      {activeWorkout.data ? (
-        <ActiveWorkout workout={activeWorkout.data} />
+    <ScreenLayout
+      title="Workout"
+      subtitle={workout ? formatDate(workout.date) : undefined}
+      rightSlot={workout ? <AddExerciseButton /> : undefined}>
+      {workout ? (
+        <ActiveWorkoutBody workout={workout} />
       ) : (
         <View style={styles.emptyBlock}>
           <Text style={styles.emptyTitle}>Ready to train?</Text>
@@ -266,18 +259,13 @@ function WorkoutScreen() {
           />
         </View>
       )}
-    </View>
+    </ScreenLayout>
   );
 }
 
 export default WorkoutScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-
   emptyBlock: {
     flex: 1,
     alignItems: 'center',
@@ -296,55 +284,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing.md,
   },
-  awContainer: {
+  awBody: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   awContent: {
     padding: spacing.md,
     paddingBottom: spacing.xxl,
     gap: spacing.lg,
   },
-
-  awHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  awHeaderText: {
-    gap: spacing.xs,
-    flex: 1,
-  },
-  addExerciseButton: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addExerciseButtonPressed: {
-    backgroundColor: colors.surfaceElevated,
-  },
-  addExerciseButtonText: {
-    color: colors.primary,
-    fontSize: 24,
-    fontWeight: '600',
-    lineHeight: 26,
-  },
-  awMeta: {
-    color: colors.textMuted,
-    fontSize: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  awTitle: {
-    color: colors.text,
-    fontSize: 28,
-    fontWeight: '700',
-  },
-
   awSection: {
     gap: spacing.sm,
   },
@@ -355,14 +302,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     fontWeight: '600',
   },
-
   awEmpty: {
     color: colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
     paddingVertical: spacing.xl,
   },
-
   awExerciseCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,
@@ -378,7 +323,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 13,
   },
-
   awFooter: {
     padding: spacing.md,
     borderTopColor: colors.border,
