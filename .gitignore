@@ -80,3 +80,5 @@ android/gradle/gradle-daemon-jvm.properties
 
 /.gems/
 /vendor/bundle/
+android/app/*.keystore
+android/keystore.properties
