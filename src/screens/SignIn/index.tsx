@@ -3,17 +3,19 @@ import {StyleSheet, Text, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Button from '@/ui/Button';
 import {useAuthStore} from '@/stores/authStore';
+import {useTranslation} from 'react-i18next';
 
 function SignInScreen() {
   const signIn = useAuthStore(s => s.signIn);
+  const {t} = useTranslation();
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Workout Journal</Text>
-        <Text style={styles.subtitle}>Track your progress</Text>
+        <Text style={styles.title}>{t('signIn.title')}</Text>
+        <Text style={styles.subtitle}>{t('signIn.subtitle')}</Text>
       </View>
       <View style={styles.footer}>
-        <Button text="Sign In" onPress={signIn} />
+        <Button text={t('signIn.button')} onPress={signIn} />
       </View>
     </SafeAreaView>
   );

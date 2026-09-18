@@ -10,6 +10,7 @@ import {Workout} from '@/api/workouts';
 import {HistoryStack} from '@/navigation/HistoryStack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import ScreenLayout from '@/ui/ScreenLayout';
+import {useTranslation} from 'react-i18next';
 
 type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
 
@@ -19,6 +20,7 @@ function HistoryScreen() {
     useDeleteWorkout();
   const navigation =
     useNavigation<NativeStackNavigationProp<HistoryStackParamList>>();
+  const {t} = useTranslation();
 
   function navigateToWorkout(id: string) {
     navigation.navigate('WorkoutDetail', {id});
@@ -40,18 +42,18 @@ function HistoryScreen() {
   }
 
   return (
-    <ScreenLayout title="History">
+    <ScreenLayout title={t('history.title')}>
       {isLoading ? (
         <View style={styles.centeredContainer}>
           <ActivityIndicator color={colors.primary} />
         </View>
       ) : isError || !workouts ? (
         <View style={styles.centeredContainer}>
-          <Text style={styles.errorText}>Failed to load workouts</Text>
+          <Text style={styles.errorText}>{t('history.loadError')}</Text>
         </View>
       ) : workouts.length === 0 ? (
         <View style={styles.centeredContainer}>
-          <Text style={styles.mutedText}>No workouts yet</Text>
+          <Text style={styles.mutedText}>{t('history.empty')}</Text>
         </View>
       ) : (
         <View style={styles.container}>

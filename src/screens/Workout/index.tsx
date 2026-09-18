@@ -22,10 +22,11 @@ import {useAddSet} from '@/hooks/useAddSet';
 import {useDeleteExerciseFromWorkout} from '@/hooks/useDeleteExerciseFromWorkout';
 import {useFinishWorkout} from '@/hooks/useFinishWorkout';
 import {useDeleteSet} from '@/hooks/useDeleteSet';
-import {formatDate} from '@/utils/formatDate';
+import {useFormatDate} from '@/utils/formatDate';
 import {ExerciseCategory} from '@/api/exercises';
 import RestTimer from '@/components/RestTimer';
 import IconButton from '@/ui/IconButton';
+import {useTranslation} from 'react-i18next';
 
 const InputRow = ({
   label,
@@ -65,12 +66,13 @@ function SetRow({
   const [reps, setReps] = useState(set.reps.toString());
   const {mutate: update} = useUpdateSet();
   const {mutate: removeSet, isPending: setRemoving} = useDeleteSet();
+  const {t} = useTranslation();
 
   return (
     <View style={styles.setRow}>
       {category !== 'bodyweight' && (
         <InputRow
-          label={'Weight'}
+          label={t('workout.weight')}
           value={weight}
           setValue={setWeight}
           onEndEditing={() =>
@@ -83,7 +85,7 @@ function SetRow({
         />
       )}
       <InputRow
-        label={'Reps'}
+        label={t('workout.reps')}
         value={reps}
         setValue={setReps}
         onEndEditing={() =>
@@ -102,7 +104,7 @@ function SetRow({
         {setRemoving ? (
           <ActivityIndicator color={colors.textMuted} />
         ) : (
-          <Text style={styles.awExerciseMeta}>{'Remove'}</Text>
+          <Text style={styles.awExerciseMeta}>{t('workout.remove')}</Text>
         )}
       </Pressable>
     </View>
@@ -111,16 +113,19 @@ function SetRow({
 
 function WorkoutExerciseCard({
   workoutExercise,
+  exerciseId,
   exerciseName,
   exerciseCategory,
 }: {
   workoutExercise: WorkoutExercise;
+  exerciseId: string;
   exerciseName: string;
   exerciseCategory: ExerciseCategory;
 }) {
   const {mutate: addSet, isPending: isAdding} = useAddSet();
   const {mutate: deleteExercise, isPending: isDeleting} =
     useDeleteExerciseFromWorkout();
+  const {t} = useTranslation();
 
   return (
     <CardWithGesture
@@ -129,9 +134,11 @@ function WorkoutExerciseCard({
       deletePending={isDeleting}
       onDelete={() => deleteExercise(workoutExercise.id)}>
       <View style={styles.awExerciseCard}>
-        <Text style={styles.awExerciseName}>{exerciseName}</Text>
+        <Text style={styles.awExerciseName}>
+          {t(`exerciseNames.${exerciseId}`, {defaultValue: exerciseName})}
+        </Text>
         <Text style={styles.awExerciseMeta}>
-          {workoutExercise.sets.length} sets
+          {t('workout.sets', {count: workoutExercise.sets.length})}
         </Text>
 
         {workoutExercise.sets.map(set => (
@@ -150,7 +157,7 @@ function WorkoutExerciseCard({
           {isAdding ? (
             <ActivityIndicator color={colors.primary} />
           ) : (
-            <Text style={styles.addSetText}>+ Add Set</Text>
+            <Text style={styles.addSetText}>{t('workout.addSet')}</Text>
           )}
         </Pressable>
       </View>
@@ -164,17 +171,20 @@ function ActiveWorkoutBody({workout}: {workout: Workout}) {
   const {data: exercises, isLoading} = useExercises();
   const {mutate: finishWorkout, isPending: isFinishing} = useFinishWorkout();
   const [restDuration, setRestDuration] = useState<number | null>(null);
+  const {t} = useTranslation();
 
   return (
     <View style={styles.awBody}>
       <ScrollView contentContainerStyle={styles.awContent}>
         <View style={styles.awSection}>
-          <Text style={styles.awSectionLabel}>Exercises</Text>
+          <Text style={styles.awSectionLabel}>
+            {t('workout.exercisesLabel')}
+          </Text>
 
           {isLoading && <ActivityIndicator color={colors.primary} />}
 
           {!isLoading && workout.exercises.length === 0 && (
-            <Text style={styles.awEmpty}>No exercises yet</Text>
+            <Text style={styles.awEmpty}>{t('workout.noExercises')}</Text>
           )}
 
           {!isLoading &&
@@ -185,6 +195,7 @@ function ActiveWorkoutBody({workout}: {workout: Workout}) {
                   <WorkoutExerciseCard
                     key={we.id}
                     workoutExercise={we}
+                    exerciseId={ex.id}
                     exerciseName={ex.name}
                     exerciseCategory={ex.category}
                   />
@@ -202,7 +213,9 @@ function ActiveWorkoutBody({workout}: {workout: Workout}) {
           />
         ) : (
           <View style={styles.restPresets}>
-            <Text style={styles.restPresetsLabel}>Rest</Text>
+            <Text style={styles.restPresetsLabel}>
+              {t('workout.restLabel')}
+            </Text>
             {REST_PRESETS.map(seconds => (
               <Pressable
                 key={seconds}
@@ -217,7 +230,7 @@ function ActiveWorkoutBody({workout}: {workout: Workout}) {
           </View>
         )}
         <Button
-          text="Finish workout"
+          text={t('workout.finishButton')}
           color={colors.danger}
           loading={isFinishing}
           disabled={isFinishing || workout.exercises.length === 0}
@@ -236,25 +249,25 @@ function AddExerciseButton() {
 function WorkoutScreen() {
   const activeWorkout = useActiveWorkout();
   const createWorkout = useCreateWorkout();
+  const formatDate = useFormatDate();
+  const {t} = useTranslation();
 
   const workout = activeWorkout.data;
 
   return (
     <ScreenLayout
-      title="Workout"
+      title={t('workout.title')}
       subtitle={workout ? formatDate(workout.date) : undefined}
       rightSlot={workout ? <AddExerciseButton /> : undefined}>
       {workout ? (
         <ActiveWorkoutBody workout={workout} />
       ) : (
         <View style={styles.emptyBlock}>
-          <Text style={styles.emptyTitle}>Ready to train?</Text>
-          <Text style={styles.emptySubtitle}>
-            Start an empty workout and add exercises as you go
-          </Text>
+          <Text style={styles.emptyTitle}>{t('workout.emptyTitle')}</Text>
+          <Text style={styles.emptySubtitle}>{t('workout.emptySubtitle')}</Text>
           <Button
             loading={createWorkout.isPending || activeWorkout.isLoading}
-            text="Start empty workout"
+            text={t('workout.startButton')}
             onPress={() => createWorkout.mutateAsync()}
           />
         </View>

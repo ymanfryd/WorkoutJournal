@@ -10,6 +10,7 @@ import {scheduleOnRN} from 'react-native-worklets';
 import ProgressRing from '../ui/ProgressRing';
 import {haptics} from '@/haptics';
 import {colors, radius, spacing} from '@/theme';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
   duration: number; // seconds
@@ -20,6 +21,7 @@ type Props = {
 function RestTimer({duration, onComplete, onCancel}: Props) {
   const progress = useSharedValue(0);
   const [remaining, setRemaining] = useState(duration);
+  const {t} = useTranslation();
 
   useEffect(() => {
     progress.value = 0;
@@ -53,8 +55,8 @@ function RestTimer({duration, onComplete, onCancel}: Props) {
       </View>
 
       <View style={styles.info}>
-        <Text style={styles.label}>Rest</Text>
-        <Text style={styles.hint}>Tap to cancel</Text>
+        <Text style={styles.label}>{t('restTimer.label')}</Text>
+        <Text style={styles.hint}>{t('restTimer.hint')}</Text>
       </View>
 
       <Pressable

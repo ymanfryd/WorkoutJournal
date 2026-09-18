@@ -1,7 +1,107 @@
 {
+  "common": {
+    "close": "Закрыть",
+    "back": "Назад",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "today": "Сегодня"
+  },
+  "tabs": {
+    "workout": "Тренировка",
+    "exercises": "Упражнения",
+    "stats": "Статистика",
+    "history": "История",
+    "settings": "Настройки"
+  },
+  "muscleGroups": {
+    "chest": "Грудь",
+    "back": "Спина",
+    "shoulders": "Плечи",
+    "legs": "Ноги",
+    "arms": "Руки",
+    "core": "Пресс"
+  },
+  "categories": {
+    "barbell": "Штанга",
+    "dumbbell": "Гантели",
+    "machine": "Тренажёр",
+    "bodyweight": "Свой вес",
+    "cable": "Блок"
+  },
+  "exerciseNames": {
+    "preset-1": "Жим лёжа",
+    "preset-2": "Присед",
+    "preset-3": "Становая тяга",
+    "preset-4": "Жим над головой",
+    "preset-5": "Тяга штанги в наклоне",
+    "preset-6": "Подтягивание",
+    "preset-7": "Отжимания на брусьях",
+    "preset-8": "Подъём гантели на бицепс",
+    "preset-9": "Разгибание на трицепс",
+    "preset-10": "Планка"
+  },
+  "signIn": {
+    "title": "Workout Journal",
+    "subtitle": "Отслеживай прогресс",
+    "button": "Войти"
+  },
+  "workout": {
+    "title": "Тренировка",
+    "emptyTitle": "Готов тренироваться?",
+    "emptySubtitle": "Начни пустую тренировку и добавляй упражнения по ходу",
+    "startButton": "Начать тренировку",
+    "finishButton": "Завершить тренировку",
+    "exercisesLabel": "Упражнения",
+    "noExercises": "Пока нет упражнений",
+    "restLabel": "Отдых",
+    "addSet": "+ Добавить подход",
+    "weight": "Вес",
+    "reps": "Повторы",
+    "remove": "Удалить",
+    "sets_one": "{{count}} подход",
+    "sets_few": "{{count}} подхода",
+    "sets_many": "{{count}} подходов",
+    "exercisesCount_one": "{{count}} упражнение",
+    "exercisesCount_few": "{{count}} упражнения",
+    "exercisesCount_many": "{{count}} упражнений"
+  },
+  "workoutDetail": {
+    "deleteButton": "Удалить тренировку"
+  },
+  "history": {
+    "title": "История",
+    "empty": "Пока нет тренировок",
+    "loadError": "Не удалось загрузить тренировки"
+  },
+  "stats": {
+    "title": "Статистика",
+    "workouts": "Тренировки",
+    "thisWeek": "На этой неделе",
+    "exercises": "Упражнения",
+    "sets": "Подходы",
+    "chartTitle": "Тренировок в неделю (последние {{count}})"
+  },
+  "exercises": {
+    "title": "Упражнения",
+    "loadError": "Не удалось загрузить упражнения"
+  },
+  "pickExercise": {
+    "title": "Выбор упражнения"
+  },
+  "editExercise": {
+    "title": "Новое упражнение",
+    "name": "Название",
+    "category": "Категория",
+    "muscleGroup": "Мышечная группа",
+    "namePlaceholder": "напр., жим гантелей на наклонной"
+  },
   "settings": {
     "title": "Настройки",
     "signOut": "Выйти",
     "language": "Язык"
+  },
+  "restTimer": {
+    "label": "Отдых",
+    "hint": "Нажми чтобы отменить"
   }
 }

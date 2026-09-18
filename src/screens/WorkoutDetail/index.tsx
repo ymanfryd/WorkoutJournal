@@ -11,8 +11,9 @@ import {useDeleteWorkout} from '@/hooks/useDeleteWorkout';
 import {HistoryStack} from '@/navigation/HistoryStack';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useWorkoutById} from '@/hooks/useWorkoutById';
-import {formatDate, formatDuration} from '@/utils/formatDate';
+import {useFormatDate, formatDuration} from '@/utils/formatDate';
 import {useExercises} from '@/hooks/useExercises';
+import {useTranslation} from 'react-i18next';
 
 type Props = StaticScreenProps<{id: string}>;
 type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
@@ -22,6 +23,8 @@ function WorkoutDetailScreen({route}: Props) {
   const navigation =
     useNavigation<NativeStackNavigationProp<HistoryStackParamList>>();
   const deleteWorkout = useDeleteWorkout();
+  const formatDate = useFormatDate();
+  const {t} = useTranslation();
 
   const {data: workout, isLoading} = useWorkoutById(route.params.id);
   const {data: exercises} = useExercises();
@@ -37,7 +40,7 @@ function WorkoutDetailScreen({route}: Props) {
         <View style={styles.card}>
           <Text style={styles.title}>{formatDate(workout.date)}</Text>
           <Text style={styles.meta}>
-            {workout.exercises.length} exercises ·{' '}
+            {t('workout.exercisesCount', {count: workout.exercises.length})} ·{' '}
             {formatDuration(workout.duration ?? 0)}
           </Text>
           {workout.exercises.map(we => {
@@ -45,7 +48,11 @@ function WorkoutDetailScreen({route}: Props) {
             if (!exercise) return null;
             return (
               <View key={we.id}>
-                <Text style={styles.sectionLabel}>{exercise.name}</Text>
+                <Text style={styles.sectionLabel}>
+                  {t(`exerciseNames.${exercise.id}`, {
+                    defaultValue: exercise.name,
+                  })}
+                </Text>
                 {we.sets.map(set => {
                   return (
                     <View key={set.id}>
@@ -60,11 +67,11 @@ function WorkoutDetailScreen({route}: Props) {
           })}
         </View>
       )}
-      <Button text={'Back'} onPress={goBack} />
+      <Button text={t('common.back')} onPress={goBack} />
       <Button
         color={colors.danger}
         disabled={deleteWorkout.isPending}
-        text={'Delete workout'}
+        text={t('workoutDetail.deleteButton')}
         onPress={() => {
           deleteWorkout.mutate(id, {onSuccess: goBack});
         }}

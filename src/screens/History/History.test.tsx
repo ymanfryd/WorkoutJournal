@@ -54,6 +54,6 @@ describe('HistoryScreen', () => {
     const {findByText} = renderWithQuery(<HistoryScreen />);
 
     expect(await findByText('0 exercises')).toBeTruthy();
-    expect(await findByText('1 exercises')).toBeTruthy();
+    expect(await findByText('1 exercise')).toBeTruthy();
   });
 });

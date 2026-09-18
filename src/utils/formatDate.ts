@@ -1,18 +1,29 @@
-export function formatDate(ts: number): string {
-  const date = new Date(ts);
-  const time = date.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+import {useTranslation} from 'react-i18next';
+import {useCallback} from 'react';
 
-  const today = new Date();
-  const isSameDay = date.toDateString() === today.toDateString();
+export function useFormatDate() {
+  const {t, i18n} = useTranslation();
+  const locale = i18n.language;
 
-  const dayLabel = isSameDay
-    ? 'Today'
-    : date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
+  return useCallback(
+    (ts: number): string => {
+      const date = new Date(ts);
+      const time = date.toLocaleTimeString(locale, {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
 
-  return `${dayLabel}, ${time}`;
+      const today = new Date();
+      const isSameDay = date.toDateString() === today.toDateString();
+
+      const dayLabel = isSameDay
+        ? t('common.today')
+        : date.toLocaleDateString(locale, {day: 'numeric', month: 'short'});
+
+      return `${dayLabel}, ${time}`;
+    },
+    [locale, t],
+  );
 }
 
 export function formatDuration(ms: number): string {

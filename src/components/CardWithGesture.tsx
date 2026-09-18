@@ -1,6 +1,7 @@
 import {haptics} from '@/haptics';
 import {colors, radius} from '@/theme';
 import React, {useEffect} from 'react';
+import {useTranslation} from 'react-i18next';
 import {
   StyleSheet,
   View,
@@ -41,6 +42,7 @@ const CardWithGesture = ({
 }: Props) => {
   const translateX = useSharedValue(0);
   const startX = useSharedValue(0);
+  const {t} = useTranslation();
 
   useEffect(() => {
     translateX.value = 0;
@@ -83,7 +85,7 @@ const CardWithGesture = ({
         {deletePending ? (
           <ActivityIndicator color={colors.text} />
         ) : (
-          <Text style={styles.deleteText}>Delete</Text>
+          <Text style={styles.deleteText}>{t('common.delete')}</Text>
         )}
       </Pressable>
       <GestureDetector gesture={composed}>
