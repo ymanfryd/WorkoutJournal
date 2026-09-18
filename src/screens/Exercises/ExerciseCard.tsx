@@ -3,16 +3,24 @@ import CardWithGesture from '@/components/CardWithGesture';
 import {useDeleteExercise} from '@/hooks/useDeleteExercise';
 import {colors, radius, spacing} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
+import {useTranslation} from 'react-i18next';
 
 const Card = ({exercise}: {exercise: Exercise}) => {
+  const {t} = useTranslation();
   return (
     <View style={styles.row}>
       <View style={styles.rowContent}>
-        <Text style={styles.name}>{exercise.name}</Text>
-        <Text style={styles.muscleGroup}>{exercise.muscleGroup}</Text>
+        <Text style={styles.name}>
+          {t(`exerciseNames.${exercise.id}`, {defaultValue: exercise.name})}
+        </Text>
+        <Text style={styles.muscleGroup}>
+          {t(`muscleGroups.${exercise.muscleGroup}`)}
+        </Text>
       </View>
       <View style={styles.categoryChip}>
-        <Text style={styles.categoryText}>{exercise.category}</Text>
+        <Text style={styles.categoryText}>
+          {t(`categories.${exercise.category}`)}
+        </Text>
       </View>
     </View>
   );
@@ -56,7 +64,6 @@ const styles = StyleSheet.create({
   muscleGroup: {
     color: colors.textMuted,
     fontSize: 12,
-    textTransform: 'capitalize',
   },
   categoryChip: {
     backgroundColor: colors.surfaceElevated,
@@ -67,7 +74,6 @@ const styles = StyleSheet.create({
   categoryText: {
     color: colors.textMuted,
     fontSize: 12,
-    textTransform: 'capitalize',
     letterSpacing: 0.5,
   },
 });

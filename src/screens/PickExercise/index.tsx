@@ -9,22 +9,25 @@ import {
   Text,
   View,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
 
 const PickExercise = () => {
   const {data, isLoading} = useExercises();
   const {mutate} = useAddExerciseToWorkout();
   const navigation = useNavigation();
+  const {t} = useTranslation();
   if (isLoading) return <ActivityIndicator />;
   return (
-    <View style={styles.container}>
+    <SafeAreaView edges={['top']} style={styles.container}>
       <Pressable
         style={styles.closeContainer}
         onPress={() => navigation.goBack()}>
-        <Text style={styles.closeText}>Close</Text>
+        <Text style={styles.closeText}>{t('common.close')}</Text>
       </Pressable>
       <View style={styles.header}>
-        <Text style={styles.title}>Pick exercise</Text>
+        <Text style={styles.title}>{t('pickExercise.title')}</Text>
       </View>
       <FlashList
         data={data}
@@ -34,12 +37,16 @@ const PickExercise = () => {
             onPress={() =>
               mutate(item.id, {onSuccess: () => navigation.goBack()})
             }>
-            <Text style={styles.pickRowName}>{item.name}</Text>
-            <Text style={styles.pickRowMeta}>{item.muscleGroup}</Text>
+            <Text style={styles.pickRowName}>
+              {t(`exerciseNames.${item.id}`, {defaultValue: item.name})}
+            </Text>
+            <Text style={styles.pickRowMeta}>
+              {t(`muscleGroups.${item.muscleGroup}`)}
+            </Text>
           </Pressable>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -88,6 +95,5 @@ const styles = StyleSheet.create({
   pickRowMeta: {
     color: colors.textMuted,
     fontSize: 12,
-    textTransform: 'capitalize',
   },
 });

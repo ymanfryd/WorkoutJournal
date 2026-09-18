@@ -11,6 +11,7 @@ import {colors, radius, spacing} from '@/theme';
 import {useWorkouts} from '@/hooks/useWorkouts';
 import type {Workout} from '@/api/workouts';
 import ScreenLayout from '@/ui/ScreenLayout';
+import {useTranslation} from 'react-i18next';
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const WEEKS_TO_SHOW = 6;
@@ -55,6 +56,7 @@ function computeWeeklyCounts(workouts: Workout[]): number[] {
 
 function StatsScreen() {
   const {data: workouts, isLoading} = useWorkouts();
+  const {t} = useTranslation();
 
   const stats = useMemo(() => computeStats(workouts ?? []), [workouts]);
   const weeklyCounts = useMemo(
@@ -63,7 +65,7 @@ function StatsScreen() {
   );
 
   return (
-    <ScreenLayout title={'Stats'}>
+    <ScreenLayout title={t('stats.title')}>
       {isLoading ? (
         <View style={styles.centered}>
           <ActivityIndicator />
@@ -71,18 +73,27 @@ function StatsScreen() {
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.grid}>
-            <StatCard label="Workouts" value={stats.total.toString()} />
-            <StatCard label="This week" value={stats.thisWeek.toString()} />
             <StatCard
-              label="Exercises"
+              label={t('stats.workouts')}
+              value={stats.total.toString()}
+            />
+            <StatCard
+              label={t('stats.thisWeek')}
+              value={stats.thisWeek.toString()}
+            />
+            <StatCard
+              label={t('stats.exercises')}
               value={stats.totalExercises.toString()}
             />
-            <StatCard label="Sets" value={stats.totalSets.toString()} />
+            <StatCard
+              label={t('stats.sets')}
+              value={stats.totalSets.toString()}
+            />
           </View>
 
           <View style={styles.chartSection}>
             <Text style={styles.chartLabel}>
-              Workouts per week (last {WEEKS_TO_SHOW})
+              {t('stats.chartTitle', {count: WEEKS_TO_SHOW})}
             </Text>
             <WeeklyChart counts={weeklyCounts} />
           </View>

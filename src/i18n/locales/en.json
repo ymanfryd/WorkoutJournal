@@ -1,7 +1,105 @@
 {
+  "common": {
+    "close": "Close",
+    "back": "Back",
+    "save": "Save",
+    "delete": "Delete",
+    "today": "Today"
+  },
+  "tabs": {
+    "workout": "Workout",
+    "exercises": "Exercises",
+    "stats": "Stats",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "muscleGroups": {
+    "chest": "Chest",
+    "back": "Back",
+    "shoulders": "Shoulders",
+    "legs": "Legs",
+    "arms": "Arms",
+    "core": "Core"
+  },
+  "categories": {
+    "barbell": "Barbell",
+    "dumbbell": "Dumbbell",
+    "machine": "Machine",
+    "bodyweight": "Bodyweight",
+    "cable": "Cable"
+  },
+  "exerciseNames": {
+    "preset-1": "Bench Press",
+    "preset-2": "Squat",
+    "preset-3": "Deadlift",
+    "preset-4": "Overhead Press",
+    "preset-5": "Barbell Row",
+    "preset-6": "Pull-up",
+    "preset-7": "Dip",
+    "preset-8": "Dumbbell Curl",
+    "preset-9": "Tricep Extension",
+    "preset-10": "Plank"
+  },
+  "signIn": {
+    "title": "Workout Journal",
+    "subtitle": "Track your progress",
+    "button": "Sign In"
+  },
+  "workout": {
+    "title": "Workout",
+    "emptyTitle": "Ready to train?",
+    "emptySubtitle": "Start an empty workout and add exercises as you go",
+    "startButton": "Start empty workout",
+    "finishButton": "Finish workout",
+    "exercisesLabel": "Exercises",
+    "noExercises": "No exercises yet",
+    "restLabel": "Rest",
+    "addSet": "+ Add Set",
+    "weight": "Weight",
+    "reps": "Reps",
+    "remove": "Remove",
+    "sets_one": "{{count}} set",
+    "sets_other": "{{count}} sets",
+    "exercisesCount_one": "{{count}} exercise",
+    "exercisesCount_other": "{{count}} exercises"
+  },
+  "workoutDetail": {
+    "deleteButton": "Delete workout"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No workouts yet",
+    "loadError": "Failed to load workouts"
+  },
+  "stats": {
+    "title": "Stats",
+    "workouts": "Workouts",
+    "thisWeek": "This week",
+    "exercises": "Exercises",
+    "sets": "Sets",
+    "chartTitle": "Workouts per week (last {{count}})"
+  },
+  "exercises": {
+    "title": "Exercises",
+    "loadError": "Failed to load exercises"
+  },
+  "pickExercise": {
+    "title": "Pick exercise"
+  },
+  "editExercise": {
+    "title": "New exercise",
+    "name": "Name",
+    "category": "Category",
+    "muscleGroup": "Muscle Group",
+    "namePlaceholder": "e.g., Incline Dumbbell Press"
+  },
   "settings": {
     "title": "Settings",
     "signOut": "Sign Out",
     "language": "Language"
+  },
+  "restTimer": {
+    "label": "Rest",
+    "hint": "Tap to cancel"
   }
 }

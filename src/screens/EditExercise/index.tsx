@@ -13,6 +13,7 @@ import Button from '@/ui/Button';
 import {colors, radius, spacing} from '@/theme';
 import {useCreateExercise} from '@/hooks/useCreateExercise';
 import type {ExerciseCategory, MuscleGroup} from '@/api/exercises';
+import {useTranslation} from 'react-i18next';
 
 const CATEGORIES: ExerciseCategory[] = [
   'barbell',
@@ -36,6 +37,7 @@ function EditExerciseScreen() {
   const [name, setName] = useState('');
   const [category, setCategory] = useState<ExerciseCategory>('barbell');
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup>('chest');
+  const {t} = useTranslation();
 
   const canSave = name.trim().length > 0 && !isPending;
 
@@ -49,32 +51,36 @@ function EditExerciseScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()}>
-          <Text style={styles.close}>Close</Text>
+        <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+          <Text style={styles.close} numberOfLines={1}>
+            {t('common.close')}
+          </Text>
         </Pressable>
-        <Text style={styles.title}>New exercise</Text>
-        <View style={styles.w50} />
+        <Text style={styles.title} numberOfLines={1}>
+          {t('editExercise.title')}
+        </Text>
+        <View style={styles.headerRightSpacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.form}>
         <View style={styles.field}>
-          <Text style={styles.label}>Name</Text>
+          <Text style={styles.label}>{t('editExercise.name')}</Text>
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="e.g., Incline Dumbbell Press"
+            placeholder={t('editExercise.namePlaceholder')}
             placeholderTextColor={colors.textMuted}
             style={styles.input}
           />
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Category</Text>
+          <Text style={styles.label}>{t('editExercise.category')}</Text>
           <View style={styles.chipRow}>
             {CATEGORIES.map(c => (
               <Chip
                 key={c}
-                label={c}
+                label={t(`categories.${c}`)}
                 active={category === c}
                 onPress={() => setCategory(c)}
               />
@@ -83,12 +89,12 @@ function EditExerciseScreen() {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Muscle Group</Text>
+          <Text style={styles.label}>{t('editExercise.muscleGroup')}</Text>
           <View style={styles.chipRow}>
             {MUSCLE_GROUPS.map(m => (
               <Chip
                 key={m}
-                label={m}
+                label={t(`muscleGroups.${m}`)}
                 active={muscleGroup === m}
                 onPress={() => setMuscleGroup(m)}
               />
@@ -98,7 +104,7 @@ function EditExerciseScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button text="Save" onPress={onSave} disabled={!canSave} />
+        <Button text={t('common.save')} onPress={onSave} disabled={!canSave} />
       </View>
     </SafeAreaView>
   );
@@ -142,12 +148,17 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
-    width: 50,
   },
   title: {
     color: colors.text,
     fontSize: 16,
     fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: spacing.sm,
+  },
+  headerRightSpacer: {
+    width: 60,
   },
   form: {
     padding: spacing.md,
@@ -186,7 +197,6 @@ const styles = StyleSheet.create({
   chipText: {
     color: colors.textMuted,
     fontSize: 14,
-    textTransform: 'capitalize',
   },
   chipTextActive: {
     color: colors.text,
@@ -195,5 +205,4 @@ const styles = StyleSheet.create({
   footer: {
     padding: spacing.md,
   },
-  w50: {width: 50},
 });

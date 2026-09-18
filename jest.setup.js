@@ -67,6 +67,12 @@ jest.mock('@shopify/flash-list', () => ({
   FlashList: require('react-native').FlatList,
 }));
 
+jest.mock('react-native-localize', () => ({
+  getLocales: () => [{languageCode: 'en', countryCode: 'US', languageTag: 'en-US'}],
+}));
+
+require('./src/i18n');
+
 jest.mock('@shopify/react-native-skia', () => ({
   Canvas: ({children}) => children,
   Circle: () => null,

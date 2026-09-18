@@ -7,6 +7,7 @@ import {useNavigation} from '@react-navigation/native';
 import ExerciseRow from './ExerciseRow';
 import ScreenLayout from '@/ui/ScreenLayout';
 import IconButton from '@/ui/IconButton';
+import {useTranslation} from 'react-i18next';
 
 const ORDER: MuscleGroup[] = [
   'chest',
@@ -26,6 +27,7 @@ const Separator = () => <View style={styles.separator} />;
 function ExercisesScreen() {
   const {data, isLoading, isError} = useExercises();
   const navigation = useNavigation();
+  const {t} = useTranslation();
 
   const grouped = data?.reduce<Grouped>((acc, ex) => {
     (acc[ex.muscleGroup] ??= []).push(ex);
@@ -46,7 +48,7 @@ function ExercisesScreen() {
   });
   return (
     <ScreenLayout
-      title="Exercises"
+      title={t('exercises.title')}
       rightSlot={
         <IconButton onPress={() => navigation.navigate('EditExercise')} />
       }>
@@ -56,7 +58,7 @@ function ExercisesScreen() {
         </View>
       ) : isError || !data ? (
         <View style={styles.centered}>
-          <Text style={styles.errorText}>Failed to load exercises</Text>
+          <Text style={styles.errorText}>{t('exercises.loadError')}</Text>
         </View>
       ) : (
         <FlashList

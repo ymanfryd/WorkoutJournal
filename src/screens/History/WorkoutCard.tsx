@@ -2,6 +2,8 @@ import {colors, spacing} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
 import type {Workout} from '@/api/workouts';
 import CardWithGesture from '@/components/CardWithGesture';
+import {useFormatDate} from '@/utils/formatDate';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
   workout: Workout;
@@ -11,12 +13,8 @@ type Props = {
 };
 
 const WorkoutCard = ({workout, onPress, onDelete, deletePending}: Props) => {
-  function formatDate(ts: number) {
-    return new Date(ts).toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'short',
-    });
-  }
+  const formatDate = useFormatDate();
+  const {t} = useTranslation();
   return (
     <CardWithGesture
       id={workout.id}
@@ -26,7 +24,9 @@ const WorkoutCard = ({workout, onPress, onDelete, deletePending}: Props) => {
       <View style={styles.card}>
         <View style={styles.cardContent}>
           <Text style={styles.date}>{formatDate(workout.date)}</Text>
-          <Text style={styles.meta}>{workout.exercises.length} exercises</Text>
+          <Text style={styles.meta}>
+            {t('workout.exercisesCount', {count: workout.exercises.length})}
+          </Text>
         </View>
         <Text style={styles.chevron}>›</Text>
       </View>
