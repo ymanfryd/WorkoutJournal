@@ -1,11 +1,11 @@
 import WorkoutScreen from '@/screens/Workout';
 import ExercisesScreen from '@/screens/Exercises';
 import StatsScreen from '@/screens/Stats';
-import SettingsScreen from '@/screens/Settings';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Text} from 'react-native';
 import {colors} from '@/theme';
 import {HistoryStack} from './HistoryStack';
+import {SettingsStack} from './SettingsStack';
 
 export const RootTabs = createBottomTabNavigator({
   initialRouteName: 'Workout',
@@ -52,7 +52,7 @@ export const RootTabs = createBottomTabNavigator({
       },
     },
     Settings: {
-      screen: SettingsScreen,
+      screen: SettingsStack,
       linking: 'settings',
       options: {
         tabBarIcon: () => {
