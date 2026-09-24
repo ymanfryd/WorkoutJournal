@@ -15,7 +15,9 @@ A minimalist strength-training tracker built with modern React Native. Log worko
 
 ## Try it
 
-[Download the latest Android APK](https://github.com/ymanfryd/WorkoutJournal/releases/latest/download/WorkoutJournal.apk) (arm64/armv7 only).
+**📱 [Get on RuStore](https://www.rustore.ru/catalog/app/com.workoutjournal)** — official Russian app store
+
+**Direct**: [Download the latest Android APK](https://github.com/ymanfryd/WorkoutJournal/releases/latest/download/WorkoutJournal.apk) (arm64/armv7)
 
 Or grab any version from [Releases](https://github.com/ymanfryd/WorkoutJournal/releases).
 
