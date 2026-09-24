@@ -9,9 +9,9 @@ A minimalist strength-training tracker built with modern React Native. Log worko
 
 ## Screenshots
 
-| Sign in                                 | Workout                                  | History                                  | Detail                                 | Stats                                |
-| --------------------------------------- | ---------------------------------------- | ---------------------------------------- | -------------------------------------- | ------------------------------------ |
-| ![Sign in](docs/screenshots/signin.png) | ![Workout](docs/screenshots/workout.png) | ![History](docs/screenshots/history.png) | ![Detail](docs/screenshots/detail.png) | ![Stats](docs/screenshots/stats.png) |
+| Sign in | Workout | History | Detail | Stats |
+|---|---|---|---|---|
+| <img src="docs/screenshots/signin.png" width="180"/> | <img src="docs/screenshots/workout.png" width="180"/> | <img src="docs/screenshots/history.png" width="180"/> | <img src="docs/screenshots/detail.png" width="180"/> | <img src="docs/screenshots/stats.png" width="180"/> |
 
 ## Try it
 
