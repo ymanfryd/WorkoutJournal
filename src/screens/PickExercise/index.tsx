@@ -16,7 +16,7 @@ import {useState} from 'react';
 
 const PickExercise = () => {
   const {data, isLoading} = useExercises();
-  const {mutate, isPending} = useAddExerciseToWorkout();
+  const {mutate} = useAddExerciseToWorkout();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const navigation = useNavigation();
   const {t} = useTranslation();
