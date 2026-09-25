@@ -27,6 +27,7 @@ import {ExerciseCategory} from '@/api/exercises';
 import RestTimer from '@/components/RestTimer';
 import IconButton from '@/ui/IconButton';
 import {useTranslation} from 'react-i18next';
+import {usePlural} from '@/i18n/usePlural';
 
 const InputRow = ({
   label,
@@ -126,6 +127,7 @@ function WorkoutExerciseCard({
   const {mutate: deleteExercise, isPending: isDeleting} =
     useDeleteExerciseFromWorkout();
   const {t} = useTranslation();
+  const tp = usePlural();
 
   return (
     <CardWithGesture
@@ -138,7 +140,7 @@ function WorkoutExerciseCard({
           {t(`exerciseNames.${exerciseId}`, {defaultValue: exerciseName})}
         </Text>
         <Text style={styles.awExerciseMeta}>
-          {t('workout.sets', {count: workoutExercise.sets.length})}
+          {tp('workout.sets', workoutExercise.sets.length)}
         </Text>
 
         {workoutExercise.sets.map(set => (

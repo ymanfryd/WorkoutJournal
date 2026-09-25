@@ -12,12 +12,23 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
+import {useState} from 'react';
 
 const PickExercise = () => {
   const {data, isLoading} = useExercises();
   const {mutate} = useAddExerciseToWorkout();
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const navigation = useNavigation();
   const {t} = useTranslation();
+
+  const onPickExercise = (id: string) => {
+    setPendingId(id);
+    mutate(id, {
+      onSuccess: () => navigation.goBack(),
+      onSettled: () => setPendingId(null),
+    });
+  };
+
   if (isLoading) return <ActivityIndicator />;
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
@@ -31,20 +42,25 @@ const PickExercise = () => {
       </View>
       <FlashList
         data={data}
-        renderItem={({item}) => (
-          <Pressable
-            style={styles.pickRow}
-            onPress={() =>
-              mutate(item.id, {onSuccess: () => navigation.goBack()})
-            }>
-            <Text style={styles.pickRowName}>
-              {t(`exerciseNames.${item.id}`, {defaultValue: item.name})}
-            </Text>
-            <Text style={styles.pickRowMeta}>
-              {t(`muscleGroups.${item.muscleGroup}`)}
-            </Text>
-          </Pressable>
-        )}
+        renderItem={({item}) => {
+          const isThisPending = pendingId === item.id;
+          return (
+            <Pressable
+              style={[styles.pickRow, isThisPending && styles.pickRowPending]}
+              disabled={pendingId !== null}
+              onPress={() => onPickExercise(item.id)}>
+              <View style={styles.rowContent}>
+                <Text style={styles.pickRowName}>
+                  {t(`exerciseNames.${item.id}`, {defaultValue: item.name})}
+                </Text>
+                <Text style={styles.pickRowMeta}>
+                  {t(`muscleGroups.${item.muscleGroup}`)}
+                </Text>
+              </View>
+              {isThisPending && <ActivityIndicator color={colors.primary} />}
+            </Pressable>
+          );
+        }}
       />
     </SafeAreaView>
   );
@@ -79,6 +95,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  rowContent: {
+    flex: 1,
+    gap: spacing.xs,
+  },
   pickRow: {
     backgroundColor: colors.surface,
     padding: spacing.md,
@@ -86,6 +106,12 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.md,
     marginBottom: spacing.sm,
     gap: spacing.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  pickRowPending: {
+    opacity: 0.5,
   },
   pickRowName: {
     color: colors.text,
