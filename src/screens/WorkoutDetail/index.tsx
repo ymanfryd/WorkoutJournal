@@ -14,6 +14,7 @@ import {useWorkoutById} from '@/hooks/useWorkoutById';
 import {useFormatDate, formatDuration} from '@/utils/formatDate';
 import {useExercises} from '@/hooks/useExercises';
 import {useTranslation} from 'react-i18next';
+import {usePlural} from '@/i18n/usePlural';
 
 type Props = StaticScreenProps<{id: string}>;
 type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
@@ -25,6 +26,7 @@ function WorkoutDetailScreen({route}: Props) {
   const deleteWorkout = useDeleteWorkout();
   const formatDate = useFormatDate();
   const {t} = useTranslation();
+  const tp = usePlural();
 
   const {data: workout, isLoading} = useWorkoutById(route.params.id);
   const {data: exercises} = useExercises();
@@ -40,7 +42,7 @@ function WorkoutDetailScreen({route}: Props) {
         <View style={styles.card}>
           <Text style={styles.title}>{formatDate(workout.date)}</Text>
           <Text style={styles.meta}>
-            {t('workout.exercisesCount', {count: workout.exercises.length})} ·{' '}
+            {tp('workout.exercisesCount', workout.exercises.length)} ·{' '}
             {formatDuration(workout.duration ?? 0)}
           </Text>
           {workout.exercises.map(we => {
