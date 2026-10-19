@@ -1,12 +1,5 @@
 import {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedReaction,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
-import {scheduleOnRN} from 'react-native-worklets';
 import ProgressRing from '../ui/ProgressRing';
 import {haptics} from '@/haptics';
 import {colors, radius, spacing} from '@/theme';
@@ -18,37 +11,34 @@ type Props = {
   onCancel: () => void;
 };
 
+const TICK_MS = 200;
+
 function RestTimer({duration, onComplete, onCancel}: Props) {
-  const progress = useSharedValue(0);
   const [remaining, setRemaining] = useState(duration);
   const {t} = useTranslation();
 
+  // Countdown + completion on JS thread
   useEffect(() => {
-    progress.value = 0;
+    const deadline = Date.now() + duration * 1000;
     setRemaining(duration);
-    progress.value = withTiming(1, {
-      duration: duration * 1000,
-      easing: Easing.linear,
-    });
-  }, [duration, progress]);
 
-  useAnimatedReaction(
-    () => Math.ceil((1 - progress.value) * duration),
-    (seconds, prev) => {
-      if (seconds !== prev) {
-        scheduleOnRN(setRemaining, seconds);
+    const timer = setInterval(() => {
+      const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      setRemaining(left);
+      if (left === 0) {
+        clearInterval(timer);
+        haptics.notification('success');
+        onComplete();
       }
-      if (seconds === 0 && prev !== null && prev > 0) {
-        scheduleOnRN(haptics.notification, 'success');
-        scheduleOnRN(onComplete);
-      }
-    },
-  );
+    }, TICK_MS);
+
+    return () => clearInterval(timer);
+  }, [duration, onComplete]);
 
   return (
-    <Animated.View style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.ringWrapper}>
-        <ProgressRing progress={progress} size={44} strokeWidth={4} />
+        <ProgressRing progress={Math.min(1, Math.max(0, (duration - remaining) / duration))} size={44} strokeWidth={4} />
         <View style={styles.ringOverlay}>
           <Text style={styles.seconds}>{remaining}</Text>
         </View>
@@ -65,7 +55,7 @@ function RestTimer({duration, onComplete, onCancel}: Props) {
         style={({pressed}) => [styles.cancel, pressed && styles.cancelPressed]}>
         <Text style={styles.cancelText}>×</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   );
 }
 
