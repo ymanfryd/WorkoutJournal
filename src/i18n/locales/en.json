@@ -4,7 +4,8 @@
     "back": "Back",
     "save": "Save",
     "delete": "Delete",
-    "today": "Today"
+    "today": "Today",
+    "yes": "Yes"
   },
   "tabs": {
     "workout": "Workout",
@@ -51,6 +52,9 @@
     "emptySubtitle": "Start an empty workout and add exercises as you go",
     "startButton": "Start empty workout",
     "finishButton": "Finish workout",
+    "addExercise": "Add exercise",
+    "finishWorkoutTitle": "Finish workout?",
+    "finishWorkoutSubtitle": "All progress will be saved",
     "exercisesLabel": "Exercises",
     "noExercises": "No exercises yet",
     "restLabel": "Rest",
