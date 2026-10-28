@@ -3,6 +3,8 @@ import ScreenLayout from '@/ui/ScreenLayout';
 import {colors, radius, spacing} from '@/theme';
 import {
   ActivityIndicator,
+  Keyboard,
+  Modal,
   StyleSheet,
   Text,
   View,
@@ -12,7 +14,12 @@ import {
 } from 'react-native';
 import {useActiveWorkout} from '@/hooks/useActiveWorkout';
 import {useCreateWorkout} from '@/hooks/useCreateWorkout';
-import {Workout, WorkoutExercise, WorkoutSet} from '@/api/workouts';
+import {
+  Workout,
+  WorkoutExercise,
+  WorkoutSet,
+  deleteEmptyActiveWorkout,
+} from '@/api/workouts';
 import {useNavigation} from '@react-navigation/native';
 import {useExercises} from '@/hooks/useExercises';
 import CardWithGesture from '@/components/CardWithGesture';
@@ -28,6 +35,7 @@ import RestTimer from '@/components/RestTimer';
 import IconButton from '@/ui/IconButton';
 import {useTranslation} from 'react-i18next';
 import {usePlural} from '@/i18n/usePlural';
+import {useQueryClient} from '@tanstack/react-query';
 
 const InputRow = ({
   label,
@@ -49,6 +57,8 @@ const InputRow = ({
       style={styles.setInput}
       onChangeText={setValue}
       onEndEditing={onEndEditing}
+      onSubmitEditing={Keyboard.dismiss}
+      returnKeyType="done"
       keyboardType="numeric"
     />
   </>
@@ -169,15 +179,25 @@ function WorkoutExerciseCard({
 
 const REST_PRESETS = [60, 90, 120];
 
-function ActiveWorkoutBody({workout}: {workout: Workout}) {
+function ActiveWorkoutBody({
+  workout,
+  onFinishPress,
+  onAddExercise,
+}: {
+  workout: Workout;
+  onFinishPress: () => void;
+  onAddExercise: () => void;
+}) {
   const {data: exercises, isLoading} = useExercises();
-  const {mutate: finishWorkout, isPending: isFinishing} = useFinishWorkout();
   const [restDuration, setRestDuration] = useState<number | null>(null);
   const {t} = useTranslation();
 
   return (
     <View style={styles.awBody}>
-      <ScrollView contentContainerStyle={styles.awContent}>
+      <ScrollView
+        contentContainerStyle={styles.awContent}
+        keyboardDismissMode="interactive"
+      >
         <View style={styles.awSection}>
           <Text style={styles.awSectionLabel}>
             {t('workout.exercisesLabel')}
@@ -232,20 +252,71 @@ function ActiveWorkoutBody({workout}: {workout: Workout}) {
           </View>
         )}
         <Button
-          text={t('workout.finishButton')}
-          color={colors.danger}
-          loading={isFinishing}
-          disabled={isFinishing || workout.exercises.length === 0}
-          onPress={() => finishWorkout()}
+          text={t('workout.addExercise')}
+          onPress={onAddExercise}
         />
       </View>
     </View>
   );
 }
 
-function AddExerciseButton() {
-  const navigation = useNavigation();
-  return <IconButton onPress={() => navigation.navigate('PickExercise')} />;
+function CloseButton({onPress}: {onPress: () => void}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={8}
+      style={({pressed}) => [
+        styles.closeButton,
+        pressed && styles.closeButtonPressed,
+      ]}>
+      <Text style={styles.closeButtonText}>×</Text>
+    </Pressable>
+  );
+}
+
+function FinishWorkoutModal({
+  visible,
+  onConfirm,
+  onClose,
+  isPending,
+}: {
+  visible: boolean;
+  onConfirm: () => void;
+  onClose: () => void;
+  isPending: boolean;
+}) {
+  const {t} = useTranslation();
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}>
+      <Pressable style={styles.modalOverlay} onPress={onClose}>
+        <View style={styles.modalContent}>
+          <Pressable
+            style={styles.modalClose}
+            onPress={onClose}
+            hitSlop={8}>
+            <Text style={styles.modalCloseText}>×</Text>
+          </Pressable>
+          <Text style={styles.modalTitle}>
+            {t('workout.finishWorkoutTitle')}
+          </Text>
+          <Text style={styles.modalSubtitle}>
+            {t('workout.finishWorkoutSubtitle')}
+          </Text>
+          <Button
+            text={t('common.yes')}
+            color={colors.danger}
+            loading={isPending}
+            onPress={onConfirm}
+          />
+        </View>
+      </Pressable>
+    </Modal>
+  );
 }
 
 function WorkoutScreen() {
@@ -255,14 +326,37 @@ function WorkoutScreen() {
   const {t} = useTranslation();
 
   const workout = activeWorkout.data;
+  const [showFinishModal, setShowFinishModal] = useState(false);
+  const {mutateAsync: finishWorkout, isPending: isFinishing} = useFinishWorkout();
+  const navigation = useNavigation();
+  const queryClient = useQueryClient();
+
+  const handleFinish = async () => {
+    if (workout && workout.exercises.length === 0) {
+      // Empty workout — delete without confirmation
+      await deleteEmptyActiveWorkout();
+      queryClient.invalidateQueries({queryKey: ['workouts']});
+      queryClient.invalidateQueries({queryKey: ['activeWorkout']});
+    } else {
+      setShowFinishModal(true);
+    }
+  };
 
   return (
     <ScreenLayout
       title={t('workout.title')}
       subtitle={workout ? formatDate(workout.date) : undefined}
-      rightSlot={workout ? <AddExerciseButton /> : undefined}>
+      rightSlot={
+        workout ? (
+          <CloseButton onPress={handleFinish} />
+        ) : undefined
+      }>
       {workout ? (
-        <ActiveWorkoutBody workout={workout} />
+        <ActiveWorkoutBody
+          workout={workout}
+          onFinishPress={handleFinish}
+          onAddExercise={() => navigation.navigate('PickExercise')}
+        />
       ) : (
         <View style={styles.emptyBlock}>
           <Text style={styles.emptyTitle}>{t('workout.emptyTitle')}</Text>
@@ -274,6 +368,20 @@ function WorkoutScreen() {
           />
         </View>
       )}
+
+      <FinishWorkoutModal
+        visible={showFinishModal}
+        onConfirm={async () => {
+          try {
+            await finishWorkout();
+            setShowFinishModal(false);
+          } catch {
+            // Keep the confirmation open so the user can retry.
+          }
+        }}
+        onClose={() => setShowFinishModal(false)}
+        isPending={isFinishing}
+      />
     </ScreenLayout>
   );
 }
@@ -398,6 +506,56 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     fontSize: 14,
     minWidth: 60,
+    textAlign: 'center',
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeButtonPressed: {
+    backgroundColor: colors.surfaceElevated,
+  },
+  closeButtonText: {
+    color: colors.textMuted,
+    fontSize: 24,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+    width: '80%',
+    gap: spacing.md,
+  },
+  modalClose: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+  },
+  modalCloseText: {
+    color: colors.textMuted,
+    fontSize: 24,
+    fontWeight: '600',
+  },
+  modalTitle: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    color: colors.textMuted,
+    fontSize: 14,
     textAlign: 'center',
   },
 });

@@ -193,3 +193,10 @@ export async function deleteExerciseFromActiveWorkout(
   );
   writeAll(workouts);
 }
+
+export async function deleteEmptyActiveWorkout(): Promise<void> {
+  await delay(150);
+  const workouts = readAll();
+  const filtered = workouts.filter(w => !w.isActive);
+  writeAll(filtered);
+}

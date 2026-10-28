@@ -4,7 +4,8 @@
     "back": "Назад",
     "save": "Сохранить",
     "delete": "Удалить",
-    "today": "Сегодня"
+    "today": "Сегодня",
+    "yes": "Да"
   },
   "tabs": {
     "workout": "Тренировка",
@@ -51,6 +52,9 @@
     "emptySubtitle": "Начни пустую тренировку и добавляй упражнения по ходу",
     "startButton": "Начать тренировку",
     "finishButton": "Завершить тренировку",
+    "addExercise": "Добавить упражнение",
+    "finishWorkoutTitle": "Завершить тренировку?",
+    "finishWorkoutSubtitle": "Все данные будут сохранены",
     "exercisesLabel": "Упражнения",
     "noExercises": "Пока нет упражнений",
     "restLabel": "Отдых",
