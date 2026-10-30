@@ -1,5 +1,6 @@
 import {storage} from '@/storage/mmkv';
 import {delay} from '@/utils/delay';
+import type {MuscleId} from '@/data/muscles';
 
 export type WorkoutSet = {
   id: string;
@@ -14,12 +15,18 @@ export type WorkoutExercise = {
   sets: WorkoutSet[];
 };
 
+export type WorkoutMuscleSummary = {
+  primaryMuscles: MuscleId[];
+  secondaryMuscles: MuscleId[];
+};
+
 export type Workout = {
   id: string;
   date: number;
   exercises: WorkoutExercise[];
   isActive: boolean;
   duration?: number;
+  muscleSummary?: WorkoutMuscleSummary;
 };
 
 const KEY = 'workouts';
@@ -167,12 +174,15 @@ export async function deleteSet(input: {
   writeAll(workouts);
 }
 
-export async function finishActiveWorkout() {
+export async function finishActiveWorkout(muscleSummary?: WorkoutMuscleSummary) {
   await delay(150);
   const workouts = readAll();
   const activeWorkout = workouts.find(workout => workout.isActive);
   if (!activeWorkout) throw new Error('No active workout');
   activeWorkout.duration = Date.now() - activeWorkout.date;
+  if (muscleSummary) {
+    activeWorkout.muscleSummary = muscleSummary;
+  }
   activeWorkout.isActive = false;
   writeAll(workouts);
 }

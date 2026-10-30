@@ -15,8 +15,14 @@ import {
 import {useActiveWorkout} from '@/hooks/useActiveWorkout';
 import {useCreateWorkout} from '@/hooks/useCreateWorkout';
 import {
+  getExercises,
+  type Exercise,
+  type ExerciseCategory,
+} from '@/api/exercises';
+import {
   Workout,
   WorkoutExercise,
+  WorkoutMuscleSummary,
   WorkoutSet,
   deleteEmptyActiveWorkout,
 } from '@/api/workouts';
@@ -30,7 +36,6 @@ import {useDeleteExerciseFromWorkout} from '@/hooks/useDeleteExerciseFromWorkout
 import {useFinishWorkout} from '@/hooks/useFinishWorkout';
 import {useDeleteSet} from '@/hooks/useDeleteSet';
 import {useFormatDate} from '@/utils/formatDate';
-import {ExerciseCategory} from '@/api/exercises';
 import RestTimer from '@/components/RestTimer';
 import IconButton from '@/ui/IconButton';
 import {useTranslation} from 'react-i18next';
@@ -38,6 +43,9 @@ import {usePlural} from '@/i18n/usePlural';
 import {useQueryClient} from '@tanstack/react-query';
 import MuscleMap from '@/components/MuscleMap';
 import type {MuscleId} from '@/data/muscles';
+import {
+  collectWorkoutMuscles,
+} from '@/utils/workoutMuscles';
 
 const InputRow = ({
   label,
@@ -331,17 +339,96 @@ function FinishWorkoutModal({
   );
 }
 
+function WorkoutSummaryModal({
+  visible,
+  onClose,
+  primaryMuscles,
+  secondaryMuscles,
+}: WorkoutMuscleSummary & {
+  visible: boolean;
+  onClose: () => void;
+}) {
+  const {t} = useTranslation();
+  const hasMuscles = primaryMuscles.length > 0 || secondaryMuscles.length > 0;
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}>
+      <View style={styles.summaryOverlay}>
+        <View style={styles.summaryContent}>
+          <ScrollView
+            style={styles.summaryScroll}
+            contentContainerStyle={styles.summaryScrollContent}
+            showsVerticalScrollIndicator={false}>
+            <Text style={styles.summaryTitle}>{t('workout.summaryTitle')}</Text>
+            <Text style={styles.summarySubtitle}>
+              {t('workout.summarySubtitle')}
+            </Text>
+            <MuscleMap
+              primaryMuscles={primaryMuscles}
+              secondaryMuscles={secondaryMuscles}
+            />
+            {!hasMuscles && (
+              <Text style={styles.summaryEmpty}>
+                {t('workout.summaryEmpty')}
+              </Text>
+            )}
+          </ScrollView>
+          <Button text={t('common.close')} onPress={onClose} />
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 function WorkoutScreen() {
   const activeWorkout = useActiveWorkout();
   const createWorkout = useCreateWorkout();
+  const {data: exerciseCatalog} = useExercises();
   const formatDate = useFormatDate();
   const {t} = useTranslation();
 
   const workout = activeWorkout.data;
   const [showFinishModal, setShowFinishModal] = useState(false);
+  const [showWorkoutSummary, setShowWorkoutSummary] = useState(false);
+  const [isPreparingFinish, setIsPreparingFinish] = useState(false);
+  const [workoutMuscleSummary, setWorkoutMuscleSummary] =
+    useState<WorkoutMuscleSummary>({primaryMuscles: [], secondaryMuscles: []});
   const {mutateAsync: finishWorkout, isPending: isFinishing} = useFinishWorkout();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+
+  const confirmFinish = async () => {
+    if (!workout) return;
+    setIsPreparingFinish(true);
+    try {
+      let muscles: WorkoutMuscleSummary | undefined;
+      try {
+        const catalog: Exercise[] =
+          exerciseCatalog ??
+          (await queryClient.ensureQueryData<Exercise[]>({
+            queryKey: ['exercises'],
+            queryFn: getExercises,
+          }));
+        muscles = collectWorkoutMuscles(workout, catalog);
+      } catch {
+        // Finishing should remain possible if the optional exercise catalog fails.
+      }
+      await finishWorkout(muscles);
+      setWorkoutMuscleSummary(
+        muscles ?? {primaryMuscles: [], secondaryMuscles: []},
+      );
+      setShowFinishModal(false);
+      setShowWorkoutSummary(true);
+    } catch {
+      // Keep the confirmation open so the user can retry.
+    } finally {
+      setIsPreparingFinish(false);
+    }
+  };
 
   const handleFinish = async () => {
     if (workout && workout.exercises.length === 0) {
@@ -383,16 +470,14 @@ function WorkoutScreen() {
 
       <FinishWorkoutModal
         visible={showFinishModal}
-        onConfirm={async () => {
-          try {
-            await finishWorkout();
-            setShowFinishModal(false);
-          } catch {
-            // Keep the confirmation open so the user can retry.
-          }
-        }}
+        onConfirm={confirmFinish}
         onClose={() => setShowFinishModal(false)}
-        isPending={isFinishing}
+        isPending={isFinishing || isPreparingFinish}
+      />
+      <WorkoutSummaryModal
+        visible={showWorkoutSummary}
+        onClose={() => setShowWorkoutSummary(false)}
+        {...workoutMuscleSummary}
       />
     </ScreenLayout>
   );
@@ -558,6 +643,44 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 24,
     fontWeight: '600',
+  },
+  summaryOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.md,
+  },
+  summaryContent: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    width: '100%',
+    maxWidth: 460,
+    maxHeight: '92%',
+    gap: spacing.sm,
+  },
+  summaryScroll: {
+    flexShrink: 1,
+  },
+  summaryScrollContent: {
+    gap: spacing.sm,
+  },
+  summaryTitle: {
+    color: colors.text,
+    fontSize: 22,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  summarySubtitle: {
+    color: colors.textMuted,
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  summaryEmpty: {
+    color: colors.textMuted,
+    fontSize: 13,
+    textAlign: 'center',
   },
   modalTitle: {
     color: colors.text,
