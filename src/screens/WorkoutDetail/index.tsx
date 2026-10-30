@@ -1,5 +1,5 @@
 import {colors, spacing, radius} from '@/theme';
-import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {
   StaticParamList,
   useNavigation,
@@ -15,6 +15,8 @@ import {useFormatDate, formatDuration} from '@/utils/formatDate';
 import {useExercises} from '@/hooks/useExercises';
 import {useTranslation} from 'react-i18next';
 import {usePlural} from '@/i18n/usePlural';
+import MuscleMap from '@/components/MuscleMap';
+import {collectWorkoutMuscles} from '@/utils/workoutMuscles';
 
 type Props = StaticScreenProps<{id: string}>;
 type HistoryStackParamList = StaticParamList<typeof HistoryStack>;
@@ -30,6 +32,13 @@ function WorkoutDetailScreen({route}: Props) {
 
   const {data: workout, isLoading} = useWorkoutById(route.params.id);
   const {data: exercises} = useExercises();
+  const muscleSummary =
+    workout?.muscleSummary ??
+    (workout && exercises ? collectWorkoutMuscles(workout, exercises) : null);
+  const hasMuscles = Boolean(
+    muscleSummary &&
+      (muscleSummary.primaryMuscles.length || muscleSummary.secondaryMuscles.length),
+  );
 
   function goBack() {
     navigation.popTo('HistoryList');
@@ -37,47 +46,67 @@ function WorkoutDetailScreen({route}: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {isLoading && <ActivityIndicator color={colors.primary} />}
-      {workout && (
-        <View style={styles.card}>
-          <Text style={styles.title}>{formatDate(workout.date)}</Text>
-          <Text style={styles.meta}>
-            {tp('workout.exercisesCount', workout.exercises.length)} ·{' '}
-            {formatDuration(workout.duration ?? 0)}
-          </Text>
-          {workout.exercises.map(we => {
-            const exercise = exercises?.find(e => e.id === we.exerciseId);
-            if (!exercise) return null;
-            return (
-              <View key={we.id}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}>
+        {isLoading && <ActivityIndicator color={colors.primary} />}
+        {workout && (
+          <View style={styles.card}>
+            <Text style={styles.title}>{formatDate(workout.date)}</Text>
+            <Text style={styles.meta}>
+              {tp('workout.exercisesCount', workout.exercises.length)} ·{' '}
+              {formatDuration(workout.duration ?? 0)}
+            </Text>
+            {!workout.isActive && muscleSummary && (
+              <View style={styles.muscleSummary}>
                 <Text style={styles.sectionLabel}>
-                  {t(`exerciseNames.${exercise.id}`, {
-                    defaultValue: exercise.name,
-                  })}
+                  {t('workout.summarySubtitle')}
                 </Text>
-                {we.sets.map(set => {
-                  return (
+                <MuscleMap
+                  primaryMuscles={muscleSummary.primaryMuscles}
+                  secondaryMuscles={muscleSummary.secondaryMuscles}
+                />
+                {!hasMuscles && (
+                  <Text style={styles.emptySummary}>
+                    {t('workout.summaryEmpty')}
+                  </Text>
+                )}
+              </View>
+            )}
+            {workout.exercises.map(we => {
+              const exercise = exercises?.find(e => e.id === we.exerciseId);
+              if (!exercise) return null;
+              return (
+                <View key={we.id}>
+                  <Text style={styles.sectionLabel}>
+                    {t(`exerciseNames.${exercise.id}`, {
+                      defaultValue: exercise.name,
+                    })}
+                  </Text>
+                  {we.sets.map(set => (
                     <View key={set.id}>
                       <Text style={styles.setDetails}>
                         {set.weight} kg × {set.reps}
                       </Text>
                     </View>
-                  );
-                })}
-              </View>
-            );
-          })}
-        </View>
-      )}
-      <Button text={t('common.back')} onPress={goBack} />
-      <Button
-        color={colors.danger}
-        disabled={deleteWorkout.isPending}
-        text={t('workoutDetail.deleteButton')}
-        onPress={() => {
-          deleteWorkout.mutate(id, {onSuccess: goBack});
-        }}
-      />
+                  ))}
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </ScrollView>
+      <View style={styles.actions}>
+        <Button text={t('common.back')} onPress={goBack} />
+        <Button
+          color={colors.danger}
+          disabled={deleteWorkout.isPending}
+          text={t('workoutDetail.deleteButton')}
+          onPress={() => {
+            deleteWorkout.mutate(id, {onSuccess: goBack});
+          }}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -90,6 +119,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: spacing.md,
     gap: spacing.lg,
+  },
+  scrollContent: {
+    gap: spacing.md,
+    paddingBottom: spacing.md,
+  },
+  scroll: {
+    flex: 1,
+  },
+  actions: {
+    gap: spacing.sm,
   },
   card: {
     backgroundColor: colors.surface,
@@ -117,5 +156,13 @@ const styles = StyleSheet.create({
   setDetails: {
     color: colors.text,
     fontSize: 12,
+  },
+  muscleSummary: {
+    gap: spacing.sm,
+  },
+  emptySummary: {
+    color: colors.textMuted,
+    fontSize: 13,
+    textAlign: 'center',
   },
 });

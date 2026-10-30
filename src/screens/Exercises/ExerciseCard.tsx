@@ -4,24 +4,31 @@ import {useDeleteExercise} from '@/hooks/useDeleteExercise';
 import {colors, radius, spacing} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
 import {useTranslation} from 'react-i18next';
+import MuscleMap from '@/components/MuscleMap';
 
 const Card = ({exercise}: {exercise: Exercise}) => {
   const {t} = useTranslation();
   return (
-    <View style={styles.row}>
-      <View style={styles.rowContent}>
-        <Text style={styles.name}>
-          {t(`exerciseNames.${exercise.id}`, {defaultValue: exercise.name})}
-        </Text>
-        <Text style={styles.muscleGroup}>
-          {t(`muscleGroups.${exercise.muscleGroup}`)}
-        </Text>
+    <View style={styles.card}>
+      <View style={styles.row}>
+        <View style={styles.rowContent}>
+          <Text style={styles.name}>
+            {t(`exerciseNames.${exercise.id}`, {defaultValue: exercise.name})}
+          </Text>
+          <Text style={styles.muscleGroup}>
+            {t(`muscleGroups.${exercise.muscleGroup}`)}
+          </Text>
+        </View>
+        <View style={styles.categoryChip}>
+          <Text style={styles.categoryText}>
+            {t(`categories.${exercise.category}`)}
+          </Text>
+        </View>
       </View>
-      <View style={styles.categoryChip}>
-        <Text style={styles.categoryText}>
-          {t(`categories.${exercise.category}`)}
-        </Text>
-      </View>
+      <MuscleMap
+        primaryMuscles={exercise.primaryMuscles}
+        secondaryMuscles={exercise.secondaryMuscles}
+      />
     </View>
   );
 };
@@ -44,13 +51,16 @@ function ExerciseCard({exercise}: {exercise: Exercise}) {
 export default ExerciseCard;
 
 const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.surface,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    gap: spacing.sm,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.surface,
-    padding: spacing.md,
-    borderRadius: radius.md,
   },
   rowContent: {
     flex: 1,
