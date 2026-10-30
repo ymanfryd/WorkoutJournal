@@ -37,7 +37,6 @@ import {useFinishWorkout} from '@/hooks/useFinishWorkout';
 import {useDeleteSet} from '@/hooks/useDeleteSet';
 import {useFormatDate} from '@/utils/formatDate';
 import RestTimer from '@/components/RestTimer';
-import IconButton from '@/ui/IconButton';
 import {useTranslation} from 'react-i18next';
 import {usePlural} from '@/i18n/usePlural';
 import {useQueryClient} from '@tanstack/react-query';
@@ -199,7 +198,6 @@ const REST_PRESETS = [60, 90, 120];
 
 function ActiveWorkoutBody({
   workout,
-  onFinishPress,
   onAddExercise,
 }: {
   workout: Workout;
