@@ -1,5 +1,6 @@
 import {storage} from '@/storage/mmkv';
 import {delay} from '@/utils/delay';
+import type {MuscleId} from '@/data/muscles';
 
 export type ExerciseCategory =
   | 'barbell'
@@ -20,7 +21,14 @@ export type Exercise = {
   name: string;
   category: ExerciseCategory;
   muscleGroup: MuscleGroup;
+  primaryMuscles: MuscleId[];
+  secondaryMuscles: MuscleId[];
   isCustom: boolean;
+};
+
+export type NewExercise = Omit<Exercise, 'id' | 'isCustom'> & {
+  primaryMuscles?: MuscleId[];
+  secondaryMuscles?: MuscleId[];
 };
 
 const KEY = 'exercises';
@@ -31,6 +39,8 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Bench Press',
     category: 'barbell',
     muscleGroup: 'chest',
+    primaryMuscles: ['pectoralis_clavicular', 'pectoralis_sternocostal'],
+    secondaryMuscles: ['deltoid_anterior', 'triceps_brachii'],
     isCustom: false,
   },
   {
@@ -38,6 +48,8 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Squat',
     category: 'barbell',
     muscleGroup: 'legs',
+    primaryMuscles: ['quadriceps', 'gluteus_maximus'],
+    secondaryMuscles: ['hamstrings', 'adductors', 'erector_spinae'],
     isCustom: false,
   },
   {
@@ -45,6 +57,8 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Deadlift',
     category: 'barbell',
     muscleGroup: 'back',
+    primaryMuscles: ['gluteus_maximus', 'hamstrings', 'erector_spinae'],
+    secondaryMuscles: ['latissimus_dorsi', 'trapezius_upper', 'forearm_flexors'],
     isCustom: false,
   },
   {
@@ -52,6 +66,8 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Overhead Press',
     category: 'barbell',
     muscleGroup: 'shoulders',
+    primaryMuscles: ['deltoid_anterior', 'deltoid_lateral'],
+    secondaryMuscles: ['triceps_brachii', 'trapezius_upper'],
     isCustom: false,
   },
   {
@@ -59,6 +75,8 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Barbell Row',
     category: 'barbell',
     muscleGroup: 'back',
+    primaryMuscles: ['latissimus_dorsi', 'rhomboids', 'trapezius_middle'],
+    secondaryMuscles: ['deltoid_posterior', 'biceps_brachii', 'brachialis'],
     isCustom: false,
   },
   {
@@ -66,6 +84,8 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Pull-up',
     category: 'bodyweight',
     muscleGroup: 'back',
+    primaryMuscles: ['latissimus_dorsi', 'teres_major'],
+    secondaryMuscles: ['biceps_brachii', 'brachialis', 'trapezius_middle'],
     isCustom: false,
   },
   {
@@ -73,6 +93,8 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Dip',
     category: 'bodyweight',
     muscleGroup: 'chest',
+    primaryMuscles: ['pectoralis_sternocostal', 'triceps_brachii'],
+    secondaryMuscles: ['deltoid_anterior'],
     isCustom: false,
   },
   {
@@ -80,6 +102,8 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Dumbbell Curl',
     category: 'dumbbell',
     muscleGroup: 'arms',
+    primaryMuscles: ['biceps_brachii'],
+    secondaryMuscles: ['brachialis', 'forearm_flexors'],
     isCustom: false,
   },
   {
@@ -87,6 +111,8 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Tricep Extension',
     category: 'cable',
     muscleGroup: 'arms',
+    primaryMuscles: ['triceps_brachii'],
+    secondaryMuscles: ['deltoid_posterior'],
     isCustom: false,
   },
   {
@@ -94,18 +120,22 @@ const DEFAULT_EXERCISES: Exercise[] = [
     name: 'Plank',
     category: 'bodyweight',
     muscleGroup: 'core',
+    primaryMuscles: ['rectus_abdominis', 'obliques'],
+    secondaryMuscles: ['gluteus_maximus', 'deltoid_anterior'],
     isCustom: false,
   },
 ];
 
 export async function createExercise(
-  input: Omit<Exercise, 'id' | 'isCustom'>,
+  input: NewExercise,
 ): Promise<Exercise> {
   await delay(200);
   const exercise: Exercise = {
     id: Date.now().toString(),
     isCustom: true,
     ...input,
+    primaryMuscles: input.primaryMuscles ?? [],
+    secondaryMuscles: input.secondaryMuscles ?? [],
   };
   const exercises = readAll();
   writeAll([exercise, ...exercises]);
@@ -128,7 +158,20 @@ function readAll(): Exercise[] {
     writeAll(DEFAULT_EXERCISES);
     return [...DEFAULT_EXERCISES];
   }
-  return JSON.parse(raw);
+  const stored = JSON.parse(raw) as Array<
+    Partial<Exercise> &
+      Pick<Exercise, 'id' | 'name' | 'category' | 'muscleGroup' | 'isCustom'>
+  >;
+  const defaultsById = new Map(DEFAULT_EXERCISES.map(exercise => [exercise.id, exercise]));
+  return stored.map(exercise => {
+    const preset = defaultsById.get(exercise.id);
+    return {
+      ...exercise,
+      // Refresh preset muscle mapping when the catalog taxonomy changes.
+      primaryMuscles: preset?.primaryMuscles ?? exercise.primaryMuscles ?? [],
+      secondaryMuscles: preset?.secondaryMuscles ?? exercise.secondaryMuscles ?? [],
+    } as Exercise;
+  });
 }
 
 function writeAll(exercises: Exercise[]) {

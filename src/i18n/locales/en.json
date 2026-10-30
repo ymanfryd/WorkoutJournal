@@ -22,6 +22,42 @@
     "arms": "Arms",
     "core": "Core"
   },
+  "muscleNames": {
+    "pectoralis_clavicular": "Upper chest (clavicular part)",
+    "pectoralis_sternocostal": "Mid/lower chest (sternocostal part)",
+    "deltoid_anterior": "Anterior deltoid",
+    "deltoid_lateral": "Lateral deltoid",
+    "deltoid_posterior": "Posterior deltoid",
+    "biceps_brachii": "Biceps brachii",
+    "brachialis": "Brachialis",
+    "triceps_brachii": "Triceps brachii",
+    "forearm_flexors": "Forearm flexors",
+    "forearm_extensors": "Forearm extensors",
+    "latissimus_dorsi": "Latissimus dorsi",
+    "teres_major": "Teres major",
+    "trapezius_upper": "Upper trapezius",
+    "trapezius_middle": "Middle trapezius",
+    "trapezius_lower": "Lower trapezius",
+    "rhomboids": "Rhomboids",
+    "erector_spinae": "Erector spinae",
+    "rectus_abdominis": "Rectus abdominis",
+    "obliques": "Obliques",
+    "gluteus_maximus": "Gluteus maximus",
+    "gluteus_medius": "Gluteus medius",
+    "adductors": "Inner thigh (adductors)",
+    "quadriceps": "Quadriceps",
+    "hamstrings": "Hamstrings",
+    "gastrocnemius": "Gastrocnemius",
+    "soleus": "Soleus",
+    "tibialis_anterior": "Front of lower leg (tibialis anterior)"
+  },
+  "muscles": {
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "diagramDescription": "Front and back muscle diagram",
+    "front": "FRONT",
+    "back": "BACK"
+  },
   "categories": {
     "barbell": "Barbell",
     "dumbbell": "Dumbbell",
@@ -95,6 +131,8 @@
     "name": "Name",
     "category": "Category",
     "muscleGroup": "Muscle Group",
+    "primaryMuscles": "Primary muscles (optional)",
+    "secondaryMuscles": "Secondary muscles (optional)",
     "namePlaceholder": "e.g., Incline Dumbbell Press"
   },
   "settings": {

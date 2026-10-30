@@ -36,6 +36,8 @@ import IconButton from '@/ui/IconButton';
 import {useTranslation} from 'react-i18next';
 import {usePlural} from '@/i18n/usePlural';
 import {useQueryClient} from '@tanstack/react-query';
+import MuscleMap from '@/components/MuscleMap';
+import type {MuscleId} from '@/data/muscles';
 
 const InputRow = ({
   label,
@@ -127,11 +129,15 @@ function WorkoutExerciseCard({
   exerciseId,
   exerciseName,
   exerciseCategory,
+  primaryMuscles,
+  secondaryMuscles,
 }: {
   workoutExercise: WorkoutExercise;
   exerciseId: string;
   exerciseName: string;
   exerciseCategory: ExerciseCategory;
+  primaryMuscles: MuscleId[];
+  secondaryMuscles: MuscleId[];
 }) {
   const {mutate: addSet, isPending: isAdding} = useAddSet();
   const {mutate: deleteExercise, isPending: isDeleting} =
@@ -152,6 +158,10 @@ function WorkoutExerciseCard({
         <Text style={styles.awExerciseMeta}>
           {tp('workout.sets', workoutExercise.sets.length)}
         </Text>
+        <MuscleMap
+          primaryMuscles={primaryMuscles}
+          secondaryMuscles={secondaryMuscles}
+        />
 
         {workoutExercise.sets.map(set => (
           <SetRow
@@ -220,6 +230,8 @@ function ActiveWorkoutBody({
                     exerciseId={ex.id}
                     exerciseName={ex.name}
                     exerciseCategory={ex.category}
+                    primaryMuscles={ex.primaryMuscles}
+                    secondaryMuscles={ex.secondaryMuscles}
                   />
                 );
             })}

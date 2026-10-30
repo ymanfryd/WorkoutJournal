@@ -13,6 +13,7 @@ import Button from '@/ui/Button';
 import {colors, radius, spacing} from '@/theme';
 import {useCreateExercise} from '@/hooks/useCreateExercise';
 import type {ExerciseCategory, MuscleGroup} from '@/api/exercises';
+import {MUSCLES, type MuscleId} from '@/data/muscles';
 import {useTranslation} from 'react-i18next';
 
 const CATEGORIES: ExerciseCategory[] = [
@@ -37,13 +38,31 @@ function EditExerciseScreen() {
   const [name, setName] = useState('');
   const [category, setCategory] = useState<ExerciseCategory>('barbell');
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup>('chest');
+  const [primaryMuscles, setPrimaryMuscles] = useState<MuscleId[]>([]);
+  const [secondaryMuscles, setSecondaryMuscles] = useState<MuscleId[]>([]);
   const {t} = useTranslation();
+  const groupMuscles = MUSCLES.filter(muscle => muscle.group === muscleGroup);
+
+  function onMuscleGroupChange(group: MuscleGroup) {
+    setMuscleGroup(group);
+    const allowedIds = new Set(
+      MUSCLES.filter(muscle => muscle.group === group).map(muscle => muscle.id),
+    );
+    setPrimaryMuscles(current => current.filter(id => allowedIds.has(id)));
+    setSecondaryMuscles(current => current.filter(id => allowedIds.has(id)));
+  }
 
   const canSave = name.trim().length > 0 && !isPending;
 
   function onSave() {
     mutate(
-      {name: name.trim(), category, muscleGroup},
+      {
+        name: name.trim(),
+        category,
+        muscleGroup,
+        primaryMuscles,
+        secondaryMuscles,
+      },
       {onSuccess: () => navigation.goBack()},
     );
   }
@@ -96,7 +115,53 @@ function EditExerciseScreen() {
                 key={m}
                 label={t(`muscleGroups.${m}`)}
                 active={muscleGroup === m}
-                onPress={() => setMuscleGroup(m)}
+                onPress={() => onMuscleGroupChange(m)}
+              />
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>{t('editExercise.primaryMuscles')}</Text>
+          <View style={styles.chipRow}>
+            {groupMuscles.map(muscle => (
+              <Chip
+                key={muscle.id}
+                label={t(`muscleNames.${muscle.id}`)}
+                active={primaryMuscles.includes(muscle.id)}
+                onPress={() => {
+                  setPrimaryMuscles(current =>
+                    current.includes(muscle.id)
+                      ? current.filter(id => id !== muscle.id)
+                      : [...current, muscle.id],
+                  );
+                  setSecondaryMuscles(current =>
+                    current.filter(id => id !== muscle.id),
+                  );
+                }}
+              />
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>{t('editExercise.secondaryMuscles')}</Text>
+          <View style={styles.chipRow}>
+            {groupMuscles.map(muscle => (
+              <Chip
+                key={muscle.id}
+                label={t(`muscleNames.${muscle.id}`)}
+                active={secondaryMuscles.includes(muscle.id)}
+                onPress={() => {
+                  setSecondaryMuscles(current =>
+                    current.includes(muscle.id)
+                      ? current.filter(id => id !== muscle.id)
+                      : [...current, muscle.id],
+                  );
+                  setPrimaryMuscles(current =>
+                    current.filter(id => id !== muscle.id),
+                  );
+                }}
               />
             ))}
           </View>
