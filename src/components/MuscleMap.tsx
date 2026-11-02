@@ -44,12 +44,12 @@ function MuscleFigure({
   const selected = new Map<string, string>();
   for (const id of secondaryMuscles) {
     for (const prefix of REGION_PREFIXES_BY_MUSCLE[id] ?? []) {
-      selected.set(prefix, '#f7b84a');
+      selected.set(prefix, colors.muscleSecondary);
     }
   }
   for (const id of primaryMuscles) {
     for (const prefix of REGION_PREFIXES_BY_MUSCLE[id] ?? []) {
-      selected.set(prefix, '#ff6d55');
+      selected.set(prefix, colors.musclePrimary);
     }
   }
   return (
@@ -155,8 +155,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     marginTop: 4,
   },
-  primaryDot: {backgroundColor: '#ff6d55'},
-  secondaryDot: {backgroundColor: '#f7b84a'},
+  primaryDot: {backgroundColor: colors.musclePrimary},
+  secondaryDot: {backgroundColor: colors.muscleSecondary},
   legendText: {
     color: colors.textMuted,
     flex: 1,

@@ -9,6 +9,8 @@ export const colors = {
   border: '#334155',
   success: '#4ADE80',
   danger: '#f52f2f',
+  musclePrimary: '#ff6d55',
+  muscleSecondary: '#f7b84a',
 } as const;
 
 export const spacing = {

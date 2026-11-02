@@ -5,6 +5,8 @@ import {colors, radius, spacing} from '@/theme';
 import {StyleSheet, Text, View} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import MuscleMap from '@/components/MuscleMap';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 const Card = ({exercise}: {exercise: Exercise}) => {
   const {t} = useTranslation();
@@ -34,13 +36,19 @@ const Card = ({exercise}: {exercise: Exercise}) => {
 };
 function ExerciseCard({exercise}: {exercise: Exercise}) {
   const {mutate: deleteExerciseMutation} = useDeleteExercise();
+  const navigation = useNavigation<
+    NativeStackNavigationProp<{EditExercise: {id?: string}}>
+  >();
 
   function onDelete() {
     deleteExerciseMutation(exercise.id);
   }
 
   return exercise.isCustom ? (
-    <CardWithGesture id={exercise.id} onPress={() => {}} onDelete={onDelete}>
+    <CardWithGesture
+      id={exercise.id}
+      onPress={id => navigation.navigate('EditExercise', {id})}
+      onDelete={onDelete}>
       <Card exercise={exercise} />
     </CardWithGesture>
   ) : (
