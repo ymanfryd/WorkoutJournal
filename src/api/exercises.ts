@@ -142,6 +142,27 @@ export async function createExercise(
   return exercise;
 }
 
+export async function updateExercise(
+  id: string,
+  input: NewExercise,
+): Promise<Exercise> {
+  await delay(200);
+  const exercises = readAll();
+  const existing = exercises.find(exercise => exercise.id === id);
+  if (!existing || !existing.isCustom) {
+    throw new Error('Custom exercise not found');
+  }
+
+  const updated: Exercise = {
+    ...existing,
+    ...input,
+    primaryMuscles: input.primaryMuscles ?? [],
+    secondaryMuscles: input.secondaryMuscles ?? [],
+  };
+  writeAll(exercises.map(exercise => (exercise.id === id ? updated : exercise)));
+  return updated;
+}
+
 export async function deleteExercise(id: string): Promise<void> {
   await delay(200);
   const exercises = readAll();

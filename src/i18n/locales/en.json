@@ -131,9 +131,13 @@
   },
   "editExercise": {
     "title": "New exercise",
+    "editTitle": "Edit exercise",
+    "loadError": "Failed to load exercise",
+    "saveError": "Failed to save exercise",
     "name": "Name",
     "category": "Category",
     "muscleGroup": "Muscle Group",
+    "musclePickerGroup": "Muscle group to choose from",
     "primaryMuscles": "Primary muscles (optional)",
     "secondaryMuscles": "Secondary muscles (optional)",
     "namePlaceholder": "e.g., Incline Dumbbell Press"

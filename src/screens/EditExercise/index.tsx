@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -8,10 +9,12 @@ import {
   View,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import Button from '@/ui/Button';
 import {colors, radius, spacing} from '@/theme';
 import {useCreateExercise} from '@/hooks/useCreateExercise';
+import {useUpdateExercise} from '@/hooks/useUpdateExercise';
+import {useExerciseById} from '@/hooks/useExerciseById';
 import type {ExerciseCategory, MuscleGroup} from '@/api/exercises';
 import {MUSCLES, type MuscleId} from '@/data/muscles';
 import {useTranslation} from 'react-i18next';
@@ -34,36 +37,137 @@ const MUSCLE_GROUPS: MuscleGroup[] = [
 
 function EditExerciseScreen() {
   const navigation = useNavigation();
-  const {mutate, isPending} = useCreateExercise();
+  const route = useRoute();
+  const exerciseId = (route.params as {id?: string} | undefined)?.id;
+  const existingExercise = useExerciseById(exerciseId);
+  const createExercise = useCreateExercise();
+  const updateExercise = useUpdateExercise();
   const [name, setName] = useState('');
   const [category, setCategory] = useState<ExerciseCategory>('barbell');
-  const [muscleGroup, setMuscleGroup] = useState<MuscleGroup>('chest');
-  const [primaryMuscles, setPrimaryMuscles] = useState<MuscleId[]>([]);
-  const [secondaryMuscles, setSecondaryMuscles] = useState<MuscleId[]>([]);
+  const [musclePickerGroup, setMusclePickerGroup] =
+    useState<MuscleGroup>('chest');
+  const [muscleSelection, setMuscleSelection] = useState<{
+    primary: MuscleId[];
+    secondary: MuscleId[];
+  }>({primary: [], secondary: []});
+  const hydratedExerciseId = useRef<string | null>(null);
   const {t} = useTranslation();
-  const groupMuscles = MUSCLES.filter(muscle => muscle.group === muscleGroup);
+  const isPending = createExercise.isPending || updateExercise.isPending;
+
+  useEffect(() => {
+    const exercise = existingExercise.data;
+    if (!exercise || hydratedExerciseId.current === exercise.id) return;
+    const primaryGroup = MUSCLES.find(
+      muscle => muscle.id === exercise.primaryMuscles[0],
+    )?.group;
+    const primary = primaryGroup
+      ? exercise.primaryMuscles.filter(
+          id => MUSCLES.find(muscle => muscle.id === id)?.group === primaryGroup,
+        )
+      : [];
+    const movedToSecondary = primaryGroup
+      ? exercise.primaryMuscles.filter(
+          id => MUSCLES.find(muscle => muscle.id === id)?.group !== primaryGroup,
+        )
+      : [];
+    setName(exercise.name);
+    setCategory(exercise.category);
+    setMusclePickerGroup(primaryGroup ?? exercise.muscleGroup);
+    setMuscleSelection({
+      primary,
+      secondary: Array.from(
+        new Set([...exercise.secondaryMuscles, ...movedToSecondary]),
+      ).filter(id => !primary.includes(id)),
+    });
+    hydratedExerciseId.current = exercise.id;
+  }, [existingExercise.data]);
 
   function onMuscleGroupChange(group: MuscleGroup) {
-    setMuscleGroup(group);
-    const allowedIds = new Set(
-      MUSCLES.filter(muscle => muscle.group === group).map(muscle => muscle.id),
+    setMusclePickerGroup(group);
+  }
+
+  function renderMuscleChoices(
+    selected: MuscleId[],
+    onToggle: (id: MuscleId) => void,
+    activeColor: string,
+  ) {
+    return (
+      <View style={styles.chipRow}>
+        {MUSCLES.filter(muscle => muscle.group === musclePickerGroup).map(
+          muscle => (
+            <Chip
+              key={muscle.id}
+              label={t(`muscleNames.${muscle.id}`)}
+              active={selected.includes(muscle.id)}
+              activeColor={activeColor}
+              onPress={() => onToggle(muscle.id)}
+            />
+          ),
+        )}
+      </View>
     );
-    setPrimaryMuscles(current => current.filter(id => allowedIds.has(id)));
-    setSecondaryMuscles(current => current.filter(id => allowedIds.has(id)));
+  }
+
+  function togglePrimaryMuscle(id: MuscleId) {
+    setMuscleSelection(current => {
+      const muscleGroupForId = MUSCLES.find(muscle => muscle.id === id)?.group;
+      const currentPrimaryGroup = MUSCLES.find(
+        muscle => muscle.id === current.primary[0],
+      )?.group;
+      const selectingNewGroup =
+        current.primary.length > 0 && currentPrimaryGroup !== muscleGroupForId;
+
+      if (current.primary.includes(id)) {
+        return {
+          ...current,
+          primary: current.primary.filter(muscleId => muscleId !== id),
+        };
+      }
+
+      return {
+        primary: selectingNewGroup ? [id] : [...current.primary, id],
+        secondary: Array.from(
+          new Set([
+            ...current.secondary,
+            ...(selectingNewGroup ? current.primary : []),
+          ]),
+        ).filter(muscleId => muscleId !== id),
+      };
+    });
   }
 
   const canSave = name.trim().length > 0 && !isPending;
 
   function onSave() {
-    mutate(
-      {
-        name: name.trim(),
-        category,
-        muscleGroup,
-        primaryMuscles,
-        secondaryMuscles,
-      },
-      {onSuccess: () => navigation.goBack()},
+    const exercise = {
+      name: name.trim(),
+      category,
+      muscleGroup:
+        MUSCLES.find(muscle => muscle.id === muscleSelection.primary[0])?.group ??
+        musclePickerGroup,
+      primaryMuscles: muscleSelection.primary,
+      secondaryMuscles: muscleSelection.secondary,
+    };
+    const callbacks = {onSuccess: () => navigation.goBack()};
+    if (exerciseId) {
+      updateExercise.mutate({id: exerciseId, exercise}, callbacks);
+    } else {
+      createExercise.mutate(exercise, callbacks);
+    }
+  }
+
+  if (exerciseId && (existingExercise.isLoading || !existingExercise.data)) {
+    return (
+      <SafeAreaView style={[styles.container, styles.loading]}>
+        {existingExercise.isError ? (
+          <Text style={styles.errorText}>{t('editExercise.loadError')}</Text>
+        ) : (
+          <ActivityIndicator color={colors.primary} />
+        )}
+        <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+          <Text style={styles.close}>{t('common.close')}</Text>
+        </Pressable>
+      </SafeAreaView>
     );
   }
 
@@ -76,12 +180,15 @@ function EditExerciseScreen() {
           </Text>
         </Pressable>
         <Text style={styles.title} numberOfLines={1}>
-          {t('editExercise.title')}
+          {t(exerciseId ? 'editExercise.editTitle' : 'editExercise.title')}
         </Text>
         <View style={styles.headerRightSpacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.form}>
+        {(createExercise.isError || updateExercise.isError) && (
+          <Text style={styles.errorText}>{t('editExercise.saveError')}</Text>
+        )}
         <View style={styles.field}>
           <Text style={styles.label}>{t('editExercise.name')}</Text>
           <TextInput
@@ -108,13 +215,13 @@ function EditExerciseScreen() {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>{t('editExercise.muscleGroup')}</Text>
+          <Text style={styles.label}>{t('editExercise.musclePickerGroup')}</Text>
           <View style={styles.chipRow}>
             {MUSCLE_GROUPS.map(m => (
               <Chip
                 key={m}
                 label={t(`muscleGroups.${m}`)}
-                active={muscleGroup === m}
+                active={musclePickerGroup === m}
                 onPress={() => onMuscleGroupChange(m)}
               />
             ))}
@@ -123,48 +230,27 @@ function EditExerciseScreen() {
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('editExercise.primaryMuscles')}</Text>
-          <View style={styles.chipRow}>
-            {groupMuscles.map(muscle => (
-              <Chip
-                key={muscle.id}
-                label={t(`muscleNames.${muscle.id}`)}
-                active={primaryMuscles.includes(muscle.id)}
-                onPress={() => {
-                  setPrimaryMuscles(current =>
-                    current.includes(muscle.id)
-                      ? current.filter(id => id !== muscle.id)
-                      : [...current, muscle.id],
-                  );
-                  setSecondaryMuscles(current =>
-                    current.filter(id => id !== muscle.id),
-                  );
-                }}
-              />
-            ))}
-          </View>
+          {renderMuscleChoices(
+            muscleSelection.primary,
+            togglePrimaryMuscle,
+            colors.musclePrimary,
+          )}
         </View>
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('editExercise.secondaryMuscles')}</Text>
-          <View style={styles.chipRow}>
-            {groupMuscles.map(muscle => (
-              <Chip
-                key={muscle.id}
-                label={t(`muscleNames.${muscle.id}`)}
-                active={secondaryMuscles.includes(muscle.id)}
-                onPress={() => {
-                  setSecondaryMuscles(current =>
-                    current.includes(muscle.id)
-                      ? current.filter(id => id !== muscle.id)
-                      : [...current, muscle.id],
-                  );
-                  setPrimaryMuscles(current =>
-                    current.filter(id => id !== muscle.id),
-                  );
-                }}
-              />
-            ))}
-          </View>
+          {renderMuscleChoices(
+            muscleSelection.secondary,
+            id => {
+              setMuscleSelection(current => ({
+                primary: current.primary.filter(muscleId => muscleId !== id),
+                secondary: current.secondary.includes(id)
+                  ? current.secondary.filter(muscleId => muscleId !== id)
+                  : [...current.secondary, id],
+              }));
+            },
+            colors.muscleSecondary,
+          )}
         </View>
       </ScrollView>
 
@@ -178,17 +264,28 @@ function EditExerciseScreen() {
 function Chip({
   label,
   active,
+  activeColor,
   onPress,
 }: {
   label: string;
   active: boolean;
+  activeColor?: string;
   onPress: () => void;
 }) {
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.chip, active && styles.chipActive]}>
-      <Text style={[styles.chipText, active && styles.chipTextActive]}>
+      style={[
+        styles.chip,
+        active &&
+          (activeColor ? {backgroundColor: activeColor} : styles.chipActive),
+      ]}>
+      <Text
+        style={[
+          styles.chipText,
+          active && styles.chipTextActive,
+          active && activeColor && styles.muscleChipTextActive,
+        ]}>
         {label}
       </Text>
     </Pressable>
@@ -267,7 +364,19 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontWeight: '600',
   },
+  muscleChipTextActive: {
+    color: colors.background,
+  },
   footer: {
     padding: spacing.md,
+  },
+  loading: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.md,
+  },
+  errorText: {
+    color: colors.danger,
+    fontSize: 16,
   },
 });
