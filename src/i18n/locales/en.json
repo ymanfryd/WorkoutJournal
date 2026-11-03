@@ -130,7 +130,8 @@
     "sets_one": "{{count}} set",
     "sets_other": "{{count}} sets",
     "exercisesCount_one": "{{count}} exercise",
-    "exercisesCount_other": "{{count}} exercises"
+    "exercisesCount_other": "{{count}} exercises",
+    "setProgress": "Sets: {{completed}} / {{total}}"
   },
   "workoutDetail": {
     "deleteButton": "Delete workout"
@@ -167,6 +168,32 @@
     "primaryMuscles": "Primary muscles (optional)",
     "secondaryMuscles": "Secondary muscles (optional)",
     "namePlaceholder": "e.g., Incline Dumbbell Press"
+  },
+  "workoutPlans": {
+    "title": "Workout plans",
+    "open": "Workout templates",
+    "empty": "No templates yet. Create a plan with exercises and target sets.",
+    "create": "Create template",
+    "createTitle": "New template",
+    "editTitle": "Edit template",
+    "name": "Plan name",
+    "namePlaceholder": "For example, Upper body",
+    "addExercise": "Add exercise",
+    "setNumber": "Set",
+    "search": "Search exercises",
+    "exerciseCount": "{{count}} exercises",
+    "start": "Start workout",
+    "deleteTitle": "Delete template?",
+    "deleteBody": "This action cannot be undone.",
+    "saveError": "Failed to save template"
+  },
+  "workingWeight": {
+    "title": "Working weight",
+    "fromHistory": "Leave blank to use the latest weight from history",
+    "current": "Working weight: {{weight}} kg",
+    "noHistory": "No weight recorded in completed workouts yet",
+    "useHistory": "Use weight from history",
+    "bodyweight": "Working weight is not set for bodyweight exercises"
   },
   "settings": {
     "title": "Settings",

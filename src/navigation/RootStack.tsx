@@ -4,6 +4,8 @@ import EditExerciseScreen from '@/screens/EditExercise';
 import PickExerciseScreen from '@/screens/PickExercise';
 import SignInScreen from '@/screens/SignIn';
 import {useIsSignedIn, useIsSignedOut} from '@/stores/authStore';
+import WorkoutPlansScreen from '@/screens/WorkoutPlans';
+import EditWorkoutPlanScreen from '@/screens/EditWorkoutPlan';
 
 const RootStack = createNativeStackNavigator({
   screenOptions: {
@@ -28,6 +30,14 @@ const RootStack = createNativeStackNavigator({
         },
         PickExercise: {
           screen: PickExerciseScreen,
+        },
+        WorkoutPlans: {
+          screen: WorkoutPlansScreen,
+          linking: 'workout-plans',
+        },
+        EditWorkoutPlan: {
+          screen: EditWorkoutPlanScreen,
+          linking: 'workout-plans/edit/:id?',
         },
       },
     },

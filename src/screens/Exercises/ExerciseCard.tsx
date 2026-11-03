@@ -2,13 +2,23 @@ import {Exercise} from '@/api/exercises';
 import CardWithGesture from '@/components/CardWithGesture';
 import {useDeleteExercise} from '@/hooks/useDeleteExercise';
 import {colors, radius, spacing} from '@/theme';
-import {StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import MuscleMap from '@/components/MuscleMap';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import type {Workout} from '@/api/workouts';
+import {getWorkingWeight} from '@/utils/workingWeight';
+import WorkingWeightModal from '@/components/WorkingWeightModal';
+import {useState} from 'react';
 
-const Card = ({exercise}: {exercise: Exercise}) => {
+const Card = ({
+  exercise,
+  workingWeight,
+}: {
+  exercise: Exercise;
+  workingWeight?: number;
+}) => {
   const {t} = useTranslation();
   return (
     <View style={styles.card}>
@@ -20,6 +30,11 @@ const Card = ({exercise}: {exercise: Exercise}) => {
           <Text style={styles.muscleGroup}>
             {t(`muscleGroups.${exercise.muscleGroup}`)}
           </Text>
+          {workingWeight !== undefined && (
+            <Text style={styles.workingWeight}>
+              {t('workingWeight.current', {weight: workingWeight})}
+            </Text>
+          )}
         </View>
         <View style={styles.categoryChip}>
           <Text style={styles.categoryText}>
@@ -34,8 +49,16 @@ const Card = ({exercise}: {exercise: Exercise}) => {
     </View>
   );
 };
-function ExerciseCard({exercise}: {exercise: Exercise}) {
+function ExerciseCard({
+  exercise,
+  workouts,
+}: {
+  exercise: Exercise;
+  workouts: Workout[];
+}) {
   const {mutate: deleteExerciseMutation} = useDeleteExercise();
+  const [showWeightModal, setShowWeightModal] = useState(false);
+  const workingWeight = getWorkingWeight(exercise, workouts);
   const navigation = useNavigation<
     NativeStackNavigationProp<{EditExercise: {id?: string}}>
   >();
@@ -44,15 +67,28 @@ function ExerciseCard({exercise}: {exercise: Exercise}) {
     deleteExerciseMutation(exercise.id);
   }
 
-  return exercise.isCustom ? (
+  const card = exercise.isCustom ? (
     <CardWithGesture
       id={exercise.id}
       onPress={id => navigation.navigate('EditExercise', {id})}
       onDelete={onDelete}>
-      <Card exercise={exercise} />
+      <Card exercise={exercise} workingWeight={workingWeight} />
     </CardWithGesture>
   ) : (
-    <Card exercise={exercise} />
+    <Pressable onPress={() => setShowWeightModal(true)}>
+      <Card exercise={exercise} workingWeight={workingWeight} />
+    </Pressable>
+  );
+  return (
+    <>
+      {card}
+      <WorkingWeightModal
+        exercise={exercise}
+        visible={showWeightModal}
+        value={workingWeight}
+        onClose={() => setShowWeightModal(false)}
+      />
+    </>
   );
 }
 
@@ -82,6 +118,11 @@ const styles = StyleSheet.create({
   muscleGroup: {
     color: colors.textMuted,
     fontSize: 12,
+  },
+  workingWeight: {
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: '600',
   },
   categoryChip: {
     backgroundColor: colors.surfaceElevated,

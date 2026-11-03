@@ -11,7 +11,7 @@ export function collectWorkoutMuscles(
   const exercisesById = new Map(exercises.map(exercise => [exercise.id, exercise]));
 
   for (const workoutExercise of workout.exercises) {
-    if (workoutExercise.sets.length === 0) continue;
+    if (!workoutExercise.sets.some(set => set.completed)) continue;
     const exercise = exercisesById.get(workoutExercise.exerciseId);
     for (const muscle of exercise?.primaryMuscles ?? []) {
       primaryMuscles.add(muscle);

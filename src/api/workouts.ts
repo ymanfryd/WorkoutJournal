@@ -1,12 +1,15 @@
 import {storage} from '@/storage/mmkv';
 import {delay} from '@/utils/delay';
 import type {MuscleId} from '@/data/muscles';
+import {increaseExerciseWorkingWeights} from '@/api/exercises';
 
 export type WorkoutSet = {
   id: string;
   reps: number;
   weight: number;
   completed: boolean;
+  targetReps?: number;
+  targetWeight?: number;
 };
 
 export type WorkoutExercise = {
@@ -27,6 +30,8 @@ export type Workout = {
   isActive: boolean;
   duration?: number;
   muscleSummary?: WorkoutMuscleSummary;
+  planId?: string;
+  completionTracking?: boolean;
 };
 
 const KEY = 'workouts';
@@ -38,7 +43,18 @@ function readAll(): Workout[] {
     writeAll(DEFAULT_WORKOUTS);
     return DEFAULT_WORKOUTS;
   }
-  return JSON.parse(raw);
+  const workouts = JSON.parse(raw) as Workout[];
+  let migrated = false;
+  for (const workout of workouts) {
+    if (workout.completionTracking !== undefined) continue;
+    workout.completionTracking = true;
+    for (const exercise of workout.exercises) {
+      for (const set of exercise.sets) set.completed = !workout.isActive;
+    }
+    migrated = true;
+  }
+  if (migrated) writeAll(workouts);
+  return workouts;
 }
 
 function writeAll(workouts: Workout[]) {
@@ -50,7 +66,13 @@ export async function getWorkouts(): Promise<Workout[]> {
   return readAll();
 }
 
-export async function createWorkout(): Promise<Workout> {
+export async function createWorkout(plan?: {
+  id: string;
+  exercises: Array<{
+    exerciseId: string;
+    sets: Array<{reps: number; weight: number}>;
+  }>;
+}): Promise<Workout> {
   await delay(500);
   const workouts = readAll();
   if (workouts.some(w => w.isActive)) {
@@ -59,8 +81,21 @@ export async function createWorkout(): Promise<Workout> {
   const workout: Workout = {
     id: Date.now().toString(),
     date: Date.now(),
-    exercises: [],
+    exercises: plan?.exercises.map((exercise, exerciseIndex) => ({
+      id: `${Date.now()}-${exerciseIndex}-${Math.random().toString(36).slice(2, 6)}`,
+      exerciseId: exercise.exerciseId,
+      sets: exercise.sets.map((set, setIndex) => ({
+        id: `${Date.now()}-${exerciseIndex}-${setIndex}-${Math.random().toString(36).slice(2, 6)}`,
+        reps: set.reps,
+        weight: set.weight,
+        targetReps: set.reps,
+        targetWeight: set.weight,
+        completed: false,
+      })),
+    })) ?? [],
     isActive: true,
+    completionTracking: true,
+    planId: plan?.id,
   };
   workouts.unshift(workout);
   writeAll(workouts);
@@ -78,9 +113,10 @@ export async function deleteWorkout(id: string): Promise<void> {
   writeAll(updated);
 }
 
-export async function addExerciseToActiveWorkout(
-  exerciseId: string,
-): Promise<void> {
+export async function addExerciseToActiveWorkout(input: {
+  exerciseId: string;
+  workingWeight?: number;
+}): Promise<void> {
   await delay(200);
   const workouts = readAll();
   const active = workouts.find(w => w.isActive);
@@ -88,8 +124,15 @@ export async function addExerciseToActiveWorkout(
 
   const newExercise: WorkoutExercise = {
     id: Date.now().toString(),
-    exerciseId,
-    sets: [],
+    exerciseId: input.exerciseId,
+    sets: [
+      {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        reps: 8,
+        weight: input.workingWeight ?? 0,
+        completed: false,
+      },
+    ],
   };
   active.exercises.push(newExercise);
 
@@ -124,6 +167,8 @@ export async function addSetToExercise(exerciseId: string) {
     reps: previousSet?.reps || 0,
     weight: previousSet?.weight || 0,
     completed: false,
+    targetReps: previousSet?.reps,
+    targetWeight: previousSet?.weight,
   };
   exercise.sets.push(newSet);
   writeAll(workouts);
@@ -179,11 +224,23 @@ export async function finishActiveWorkout(muscleSummary?: WorkoutMuscleSummary) 
   const workouts = readAll();
   const activeWorkout = workouts.find(workout => workout.isActive);
   if (!activeWorkout) throw new Error('No active workout');
+  const previousHistory = workouts.filter(workout => !workout.isActive);
   activeWorkout.duration = Date.now() - activeWorkout.date;
   if (muscleSummary) {
     activeWorkout.muscleSummary = muscleSummary;
   }
   activeWorkout.isActive = false;
+  increaseExerciseWorkingWeights(
+    activeWorkout.exercises.flatMap(exercise => {
+      const completedWeights = exercise.sets
+        .filter(set => set.completed && set.weight > 0)
+        .map(set => set.weight);
+      return completedWeights.length
+        ? [{exerciseId: exercise.exerciseId, weight: Math.max(...completedWeights)}]
+        : [];
+    }),
+    previousHistory,
+  );
   writeAll(workouts);
 }
 

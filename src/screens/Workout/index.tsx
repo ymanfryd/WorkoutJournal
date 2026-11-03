@@ -5,6 +5,8 @@ import {
   ActivityIndicator,
   Keyboard,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   View,
@@ -29,7 +31,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {useExercises} from '@/hooks/useExercises';
 import CardWithGesture from '@/components/CardWithGesture';
-import {useState} from 'react';
+import {useRef, useState} from 'react';
 import {useUpdateSet} from '@/hooks/useUpdateSet';
 import {useAddSet} from '@/hooks/useAddSet';
 import {useDeleteExerciseFromWorkout} from '@/hooks/useDeleteExerciseFromWorkout';
@@ -38,68 +40,98 @@ import {useDeleteSet} from '@/hooks/useDeleteSet';
 import {useFormatDate} from '@/utils/formatDate';
 import RestTimer from '@/components/RestTimer';
 import {useTranslation} from 'react-i18next';
-import {usePlural} from '@/i18n/usePlural';
 import {useQueryClient} from '@tanstack/react-query';
 import MuscleMap from '@/components/MuscleMap';
 import type {MuscleId} from '@/data/muscles';
 import {
   collectWorkoutMuscles,
 } from '@/utils/workoutMuscles';
+import {useScrollInputIntoView} from '@/hooks/useScrollInputIntoView';
 
-const InputRow = ({
+function InputRow({
   label,
   value,
   setValue,
   onEndEditing,
+  focusInput,
 }: {
   label: string;
   value: string;
   setValue: (v: string) => void;
   onEndEditing: () => void;
-}) => (
-  <>
-    <Text style={styles.awExerciseMeta}>{label}</Text>
+  focusInput: (input: TextInput | null) => void;
+}) {
+  const inputRef = useRef<TextInput | null>(null);
+  return (
+    <>
+      <Text style={styles.awExerciseMeta}>{label}</Text>
 
-    <TextInput
-      value={value}
-      selectTextOnFocus
-      style={styles.setInput}
-      onChangeText={setValue}
-      onEndEditing={onEndEditing}
-      onSubmitEditing={Keyboard.dismiss}
-      returnKeyType="done"
-      keyboardType="numeric"
-    />
-  </>
-);
+      <TextInput
+        ref={inputRef}
+        value={value}
+        style={styles.setInput}
+        onBlur={() => focusInput(null)}
+        onFocus={() => {
+          setValue('');
+          focusInput(inputRef.current);
+        }}
+        onChangeText={setValue}
+        onEndEditing={onEndEditing}
+        onSubmitEditing={Keyboard.dismiss}
+        returnKeyType="done"
+        keyboardType="numeric"
+      />
+    </>
+  );
+}
 
 function SetRow({
   set,
   category,
   workoutExerciseId,
+  focusInput,
 }: {
   set: WorkoutSet;
   category: ExerciseCategory;
   workoutExerciseId: string;
+  focusInput: (input: TextInput | null) => void;
 }) {
   const [weight, setWeight] = useState(set.weight.toString());
   const [reps, setReps] = useState(set.reps.toString());
   const {mutate: update} = useUpdateSet();
   const {mutate: removeSet, isPending: setRemoving} = useDeleteSet();
   const {t} = useTranslation();
+  const canComplete = Number.parseInt(reps, 10) > 0;
 
   return (
     <View style={styles.setRow}>
+      <Pressable
+        disabled={!set.completed && !canComplete}
+        accessibilityRole="checkbox"
+        accessibilityState={{checked: set.completed}}
+        onPress={() =>
+          update({
+            workoutExerciseId,
+            setId: set.id,
+            patch: {completed: !set.completed},
+          })
+        }
+        style={[styles.setCompletion, set.completed && styles.setCompletionDone]}>
+        <Text style={[styles.setCompletionText, set.completed && styles.setCompletionTextDone]}>
+          {set.completed ? '✓' : ''}
+        </Text>
+      </Pressable>
       {category !== 'bodyweight' && (
         <InputRow
           label={t('workout.weight')}
           value={weight}
           setValue={setWeight}
+          focusInput={focusInput}
           onEndEditing={() =>
             update({
               workoutExerciseId,
               setId: set.id,
-              patch: {weight: parseInt(weight, 10) || 0},
+              patch: {weight: parseFloat(weight.replace(',', '.')) || 0},
             })
           }
         />
@@ -108,6 +140,7 @@ function SetRow({
         label={t('workout.reps')}
         value={reps}
         setValue={setReps}
+        focusInput={focusInput}
         onEndEditing={() =>
           update({
             workoutExerciseId,
@@ -118,13 +151,16 @@ function SetRow({
       />
       <Pressable
         disabled={setRemoving}
+        accessibilityRole="button"
+        accessibilityLabel={t('workout.remove')}
+        style={styles.removeSetButton}
         onPress={() => {
           removeSet({workoutExerciseId, setId: set.id});
         }}>
         {setRemoving ? (
           <ActivityIndicator color={colors.textMuted} />
         ) : (
-          <Text style={styles.awExerciseMeta}>{t('workout.remove')}</Text>
+          <Text style={styles.removeSetText}>×</Text>
         )}
       </Pressable>
     </View>
@@ -138,6 +174,7 @@ function WorkoutExerciseCard({
   exerciseCategory,
   primaryMuscles,
   secondaryMuscles,
+  focusInput,
 }: {
   workoutExercise: WorkoutExercise;
   exerciseId: string;
@@ -145,12 +182,12 @@ function WorkoutExerciseCard({
   exerciseCategory: ExerciseCategory;
   primaryMuscles: MuscleId[];
   secondaryMuscles: MuscleId[];
+  focusInput: (input: TextInput | null) => void;
 }) {
   const {mutate: addSet, isPending: isAdding} = useAddSet();
   const {mutate: deleteExercise, isPending: isDeleting} =
     useDeleteExerciseFromWorkout();
   const {t} = useTranslation();
-  const tp = usePlural();
 
   return (
     <CardWithGesture
@@ -163,7 +200,10 @@ function WorkoutExerciseCard({
           {t(`exerciseNames.${exerciseId}`, {defaultValue: exerciseName})}
         </Text>
         <Text style={styles.awExerciseMeta}>
-          {tp('workout.sets', workoutExercise.sets.length)}
+          {t('workout.setProgress', {
+            completed: workoutExercise.sets.filter(set => set.completed).length,
+            total: workoutExercise.sets.length,
+          })}
         </Text>
         <MuscleMap
           primaryMuscles={primaryMuscles}
@@ -176,6 +216,7 @@ function WorkoutExerciseCard({
             set={set}
             category={exerciseCategory}
             workoutExerciseId={workoutExercise.id}
+            focusInput={focusInput}
           />
         ))}
 
@@ -207,12 +248,20 @@ function ActiveWorkoutBody({
   const {data: exercises, isLoading} = useExercises();
   const [restDuration, setRestDuration] = useState<number | null>(null);
   const {t} = useTranslation();
+  const scrollRef = useRef<ScrollView | null>(null);
+  const {focusInput, handleScroll} = useScrollInputIntoView(scrollRef);
 
   return (
-    <View style={styles.awBody}>
+    <KeyboardAvoidingView
+      style={styles.awBody}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.awContent}
-        keyboardDismissMode="interactive"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        keyboardShouldPersistTaps="handled"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         <View style={styles.awSection}>
           <Text style={styles.awSectionLabel}>
@@ -238,6 +287,7 @@ function ActiveWorkoutBody({
                     exerciseCategory={ex.category}
                     primaryMuscles={ex.primaryMuscles}
                     secondaryMuscles={ex.secondaryMuscles}
+                    focusInput={focusInput}
                   />
                 );
             })}
@@ -274,7 +324,7 @@ function ActiveWorkoutBody({
           onPress={onAddExercise}
         />
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -459,9 +509,13 @@ function WorkoutScreen() {
           <Text style={styles.emptyTitle}>{t('workout.emptyTitle')}</Text>
           <Text style={styles.emptySubtitle}>{t('workout.emptySubtitle')}</Text>
           <Button
+            text={t('workoutPlans.open')}
+            onPress={() => navigation.navigate('WorkoutPlans')}
+          />
+          <Button
             loading={createWorkout.isPending || activeWorkout.isLoading}
             text={t('workout.startButton')}
-            onPress={() => createWorkout.mutateAsync()}
+            onPress={() => createWorkout.mutateAsync(undefined)}
           />
         </View>
       )}
@@ -592,6 +646,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.xs,
+  },
+  removeSetButton: {
+    padding: spacing.xs,
+  },
+  removeSetText: {
+    color: colors.danger,
+    fontSize: 13,
+  },
+  setCompletion: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.sm,
+    borderWidth: 1.5,
+    borderColor: colors.textMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  setCompletionDone: {
+    backgroundColor: colors.success,
+    borderColor: colors.success,
+  },
+  setCompletionText: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '700',
+    lineHeight: 18,
+  },
+  setCompletionTextDone: {
+    color: colors.background,
   },
   setInput: {
     backgroundColor: colors.surfaceElevated,
