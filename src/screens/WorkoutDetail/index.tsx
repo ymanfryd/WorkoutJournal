@@ -39,6 +39,9 @@ function WorkoutDetailScreen({route}: Props) {
     muscleSummary &&
       (muscleSummary.primaryMuscles.length || muscleSummary.secondaryMuscles.length),
   );
+  const completedExercises = workout?.exercises.filter(exercise =>
+    exercise.sets.some(set => set.completed),
+  ) ?? [];
 
   function goBack() {
     navigation.popTo('HistoryList');
@@ -54,7 +57,7 @@ function WorkoutDetailScreen({route}: Props) {
           <View style={styles.card}>
             <Text style={styles.title}>{formatDate(workout.date)}</Text>
             <Text style={styles.meta}>
-              {tp('workout.exercisesCount', workout.exercises.length)} ·{' '}
+              {tp('workout.exercisesCount', completedExercises.length)} ·{' '}
               {formatDuration(workout.duration ?? 0)}
             </Text>
             {!workout.isActive && muscleSummary && (
@@ -83,7 +86,7 @@ function WorkoutDetailScreen({route}: Props) {
                       defaultValue: exercise.name,
                     })}
                   </Text>
-                  {we.sets.map(set => (
+                  {we.sets.filter(set => set.completed).map(set => (
                     <View key={set.id}>
                       <Text style={styles.setDetails}>
                         {set.weight} kg × {set.reps}

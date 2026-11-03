@@ -132,7 +132,8 @@
     "sets_many": "{{count}} подходов",
     "exercisesCount_one": "{{count}} упражнение",
     "exercisesCount_few": "{{count}} упражнения",
-    "exercisesCount_many": "{{count}} упражнений"
+    "exercisesCount_many": "{{count}} упражнений",
+    "setProgress": "Подходы: {{completed}} / {{total}}"
   },
   "workoutDetail": {
     "deleteButton": "Удалить тренировку"
@@ -169,6 +170,32 @@
     "primaryMuscles": "Основные мышцы (необязательно)",
     "secondaryMuscles": "Вторичные мышцы (необязательно)",
     "namePlaceholder": "напр., жим гантелей на наклонной"
+  },
+  "workoutPlans": {
+    "title": "Планы тренировок",
+    "open": "Шаблоны тренировок",
+    "empty": "Пока нет шаблонов. Создай план с упражнениями и целевыми подходами.",
+    "create": "Создать шаблон",
+    "createTitle": "Новый шаблон",
+    "editTitle": "Изменить шаблон",
+    "name": "Название плана",
+    "namePlaceholder": "Например, верх тела",
+    "addExercise": "Добавить упражнение",
+    "setNumber": "Подход",
+    "search": "Поиск упражнений",
+    "exerciseCount": "Упражнений: {{count}}",
+    "start": "Начать тренировку",
+    "deleteTitle": "Удалить шаблон?",
+    "deleteBody": "Это действие нельзя отменить.",
+    "saveError": "Не удалось сохранить шаблон"
+  },
+  "workingWeight": {
+    "title": "Рабочий вес",
+    "fromHistory": "Если пусто, вес берётся из истории",
+    "current": "Рабочий вес: {{weight}} кг",
+    "noHistory": "В завершённых тренировках вес пока не записан",
+    "useHistory": "Использовать вес из истории",
+    "bodyweight": "Для упражнения с собственным весом рабочий вес не задаётся"
   },
   "settings": {
     "title": "Настройки",

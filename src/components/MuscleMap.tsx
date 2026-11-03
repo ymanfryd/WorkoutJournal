@@ -52,6 +52,7 @@ function MuscleFigure({
       selected.set(prefix, colors.musclePrimary);
     }
   }
+
   return (
     <Svg viewBox="0 0 1378 1142" style={styles.figure}>
       <Image

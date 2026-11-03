@@ -13,9 +13,12 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {useState} from 'react';
+import {useWorkouts} from '@/hooks/useWorkouts';
+import {getWorkingWeight} from '@/utils/workingWeight';
 
 const PickExercise = () => {
   const {data, isLoading} = useExercises();
+  const {data: workouts = []} = useWorkouts();
   const {mutate} = useAddExerciseToWorkout();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const navigation = useNavigation();
@@ -23,10 +26,17 @@ const PickExercise = () => {
 
   const onPickExercise = (id: string) => {
     setPendingId(id);
-    mutate(id, {
-      onSuccess: () => navigation.goBack(),
-      onSettled: () => setPendingId(null),
-    });
+    const exercise = data?.find(item => item.id === id);
+    mutate(
+      {
+        exerciseId: id,
+        workingWeight: exercise ? getWorkingWeight(exercise, workouts) : undefined,
+      },
+      {
+        onSuccess: () => navigation.goBack(),
+        onSettled: () => setPendingId(null),
+      },
+    );
   };
 
   if (isLoading) return <ActivityIndicator />;

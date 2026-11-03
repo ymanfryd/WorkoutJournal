@@ -8,6 +8,7 @@ export function useFinishWorkout() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({queryKey: ['workouts']});
       await queryClient.invalidateQueries({queryKey: ['activeWorkout']});
+      await queryClient.invalidateQueries({queryKey: ['exercises']});
     },
   });
 }

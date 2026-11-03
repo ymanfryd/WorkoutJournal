@@ -8,6 +8,7 @@ import ExerciseRow from './ExerciseRow';
 import ScreenLayout from '@/ui/ScreenLayout';
 import IconButton from '@/ui/IconButton';
 import {useTranslation} from 'react-i18next';
+import {useWorkouts} from '@/hooks/useWorkouts';
 
 const ORDER: MuscleGroup[] = [
   'chest',
@@ -26,6 +27,7 @@ const Separator = () => <View style={styles.separator} />;
 
 function ExercisesScreen() {
   const {data, isLoading, isError} = useExercises();
+  const {data: workouts = []} = useWorkouts();
   const navigation = useNavigation();
   const {t} = useTranslation();
 
@@ -64,7 +66,7 @@ function ExercisesScreen() {
         <FlashList
           data={rows}
           keyExtractor={item => item.key}
-          renderItem={({item}) => <ExerciseRow row={item} />}
+          renderItem={({item}) => <ExerciseRow row={item} workouts={workouts} />}
           ItemSeparatorComponent={Separator}
           contentContainerStyle={{padding: spacing.md}}
         />

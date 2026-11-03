@@ -3,8 +3,9 @@ import {StyleSheet, Text, View} from 'react-native';
 import ExerciseCard from './ExerciseCard';
 import {Row} from '.';
 import {useTranslation} from 'react-i18next';
+import type {Workout} from '@/api/workouts';
 
-const ExerciseRow = ({row}: {row: Row}) => {
+const ExerciseRow = ({row, workouts}: {row: Row; workouts: Workout[]}) => {
   const {t} = useTranslation();
   return (
     <View>
@@ -15,7 +16,9 @@ const ExerciseRow = ({row}: {row: Row}) => {
           </Text>
         </View>
       )}
-      {row.type === 'exercise' && <ExerciseCard exercise={row.exercise} />}
+      {row.type === 'exercise' && (
+        <ExerciseCard exercise={row.exercise} workouts={workouts} />
+      )}
     </View>
   );
 };

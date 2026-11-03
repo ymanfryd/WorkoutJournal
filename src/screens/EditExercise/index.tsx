@@ -18,6 +18,8 @@ import {useExerciseById} from '@/hooks/useExerciseById';
 import type {ExerciseCategory, MuscleGroup} from '@/api/exercises';
 import {MUSCLES, type MuscleId} from '@/data/muscles';
 import {useTranslation} from 'react-i18next';
+import {useWorkouts} from '@/hooks/useWorkouts';
+import {getWorkingWeight} from '@/utils/workingWeight';
 
 const CATEGORIES: ExerciseCategory[] = [
   'barbell',
@@ -50,6 +52,9 @@ function EditExerciseScreen() {
     primary: MuscleId[];
     secondary: MuscleId[];
   }>({primary: [], secondary: []});
+  const [workingWeight, setWorkingWeight] = useState('');
+  const workingWeightEdited = useRef(false);
+  const {data: workouts = []} = useWorkouts();
   const hydratedExerciseId = useRef<string | null>(null);
   const {t} = useTranslation();
   const isPending = createExercise.isPending || updateExercise.isPending;
@@ -81,6 +86,14 @@ function EditExerciseScreen() {
     });
     hydratedExerciseId.current = exercise.id;
   }, [existingExercise.data]);
+
+  useEffect(() => {
+    const exercise = existingExercise.data;
+    if (!exercise || workingWeightEdited.current) return;
+    setWorkingWeight(
+      (exercise.workingWeight ?? getWorkingWeight(exercise, workouts))?.toString() ?? '',
+    );
+  }, [existingExercise.data, workouts]);
 
   function onMuscleGroupChange(group: MuscleGroup) {
     setMusclePickerGroup(group);
@@ -136,7 +149,13 @@ function EditExerciseScreen() {
     });
   }
 
-  const canSave = name.trim().length > 0 && !isPending;
+  const parsedWorkingWeight =
+    workingWeight.trim() === '' ? undefined : Number(workingWeight.replace(',', '.'));
+  const canSave =
+    name.trim().length > 0 &&
+    !isPending &&
+    (parsedWorkingWeight === undefined ||
+      (Number.isFinite(parsedWorkingWeight) && parsedWorkingWeight >= 0));
 
   function onSave() {
     const exercise = {
@@ -147,6 +166,7 @@ function EditExerciseScreen() {
         musclePickerGroup,
       primaryMuscles: muscleSelection.primary,
       secondaryMuscles: muscleSelection.secondary,
+      workingWeight: category === 'bodyweight' ? undefined : parsedWorkingWeight,
     };
     const callbacks = {onSuccess: () => navigation.goBack()};
     if (exerciseId) {
@@ -213,6 +233,23 @@ function EditExerciseScreen() {
             ))}
           </View>
         </View>
+
+        {category !== 'bodyweight' && (
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('workingWeight.title')}</Text>
+            <TextInput
+              value={workingWeight}
+              onChangeText={value => {
+                workingWeightEdited.current = true;
+                setWorkingWeight(value);
+              }}
+              placeholder={t('workingWeight.fromHistory')}
+              placeholderTextColor={colors.textMuted}
+              keyboardType="decimal-pad"
+              style={styles.input}
+            />
+          </View>
+        )}
 
         <View style={styles.field}>
           <Text style={styles.label}>{t('editExercise.musclePickerGroup')}</Text>

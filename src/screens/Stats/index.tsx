@@ -30,9 +30,13 @@ function computeStats(workouts: Workout[]): Stats {
   return {
     total: completed.length,
     thisWeek: completed.filter(w => w.date > oneWeekAgo).length,
-    totalExercises: completed.reduce((sum, w) => sum + w.exercises.length, 0),
+    totalExercises: completed.reduce(
+      (sum, w) => sum + w.exercises.filter(e => e.sets.some(set => set.completed)).length,
+      0,
+    ),
     totalSets: completed.reduce(
-      (sum, w) => sum + w.exercises.reduce((s, e) => s + e.sets.length, 0),
+      (sum, w) =>
+        sum + w.exercises.reduce((s, e) => s + e.sets.filter(set => set.completed).length, 0),
       0,
     ),
   };

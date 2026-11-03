@@ -1,6 +1,9 @@
 import {storage} from '@/storage/mmkv';
 import {delay} from '@/utils/delay';
 import type {MuscleId} from '@/data/muscles';
+import {getWorkingWeight} from '@/utils/workingWeight';
+import type {Workout} from '@/api/workouts';
+import {removeExerciseFromWorkoutPlans} from '@/api/workoutPlans';
 
 export type ExerciseCategory =
   | 'barbell'
@@ -24,6 +27,7 @@ export type Exercise = {
   primaryMuscles: MuscleId[];
   secondaryMuscles: MuscleId[];
   isCustom: boolean;
+  workingWeight?: number;
 };
 
 export type NewExercise = Omit<Exercise, 'id' | 'isCustom'> & {
@@ -397,6 +401,44 @@ export async function updateExercise(
   return updated;
 }
 
+export function updateExerciseWorkingWeight(
+  id: string,
+  workingWeight?: number,
+): Exercise {
+  const exercises = readAll();
+  const existing = exercises.find(exercise => exercise.id === id);
+  if (!existing) {
+    throw new Error('Exercise not found');
+  }
+  const updated = {...existing, workingWeight};
+  writeAll(exercises.map(exercise => (exercise.id === id ? updated : exercise)));
+  return updated;
+}
+
+export function increaseExerciseWorkingWeights(
+  weights: Array<{exerciseId: string; weight: number}>,
+  history: Workout[] = [],
+): void {
+  const increases = new Map<string, number>();
+  for (const {exerciseId, weight} of weights) {
+    increases.set(exerciseId, Math.max(increases.get(exerciseId) ?? 0, weight));
+  }
+  if (increases.size === 0) return;
+
+  const exercises = readAll();
+  let changed = false;
+  const updated = exercises.map(exercise => {
+    const latestWeight = increases.get(exercise.id);
+    const currentWorkingWeight = getWorkingWeight(exercise, history) ?? 0;
+    if (latestWeight === undefined || latestWeight <= currentWorkingWeight) {
+      return exercise;
+    }
+    changed = true;
+    return {...exercise, workingWeight: latestWeight};
+  });
+  if (changed) writeAll(updated);
+}
+
 export async function deleteExercise(id: string): Promise<void> {
   await delay(200);
   const exercises = readAll();
@@ -405,6 +447,7 @@ export async function deleteExercise(id: string): Promise<void> {
     throw new Error('Exercise not found');
   }
   writeAll(updated);
+  removeExerciseFromWorkoutPlans(id);
 }
 
 function readAll(): Exercise[] {
