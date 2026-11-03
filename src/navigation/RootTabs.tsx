@@ -7,6 +7,7 @@ import {colors} from '@/theme';
 import {HistoryStack} from './HistoryStack';
 import {SettingsStack} from './SettingsStack';
 import {useTranslation} from 'react-i18next';
+import TabIcon from '@/components/TabIcon';
 
 function TabLabel({textKey, color}: {textKey: string; color: string}) {
   const {t} = useTranslation();
@@ -34,7 +35,9 @@ export const RootTabs = createBottomTabNavigator({
         tabBarLabel: ({color}) => (
           <TabLabel textKey="tabs.workout" color={color} />
         ),
-        tabBarIcon: () => <Text>🔥</Text>,
+        tabBarIcon: ({focused, size}) => (
+          <TabIcon name="workout" focused={focused} size={size} />
+        ),
       },
     },
     Exercises: {
@@ -44,7 +47,9 @@ export const RootTabs = createBottomTabNavigator({
         tabBarLabel: ({color}) => (
           <TabLabel textKey="tabs.exercises" color={color} />
         ),
-        tabBarIcon: () => <Text>🏋️</Text>,
+        tabBarIcon: ({focused, size}) => (
+          <TabIcon name="exercises" focused={focused} size={size} />
+        ),
       },
     },
     Stats: {
@@ -54,7 +59,9 @@ export const RootTabs = createBottomTabNavigator({
         tabBarLabel: ({color}) => (
           <TabLabel textKey="tabs.stats" color={color} />
         ),
-        tabBarIcon: () => <Text> 📊</Text>,
+        tabBarIcon: ({focused, size}) => (
+          <TabIcon name="stats" focused={focused} size={size} />
+        ),
       },
     },
     History: {
@@ -64,7 +71,9 @@ export const RootTabs = createBottomTabNavigator({
         tabBarLabel: ({color}) => (
           <TabLabel textKey="tabs.history" color={color} />
         ),
-        tabBarIcon: () => <Text>📅</Text>,
+        tabBarIcon: ({focused, size}) => (
+          <TabIcon name="history" focused={focused} size={size} />
+        ),
       },
     },
     Settings: {
@@ -74,7 +83,9 @@ export const RootTabs = createBottomTabNavigator({
         tabBarLabel: ({color}) => (
           <TabLabel textKey="tabs.settings" color={color} />
         ),
-        tabBarIcon: () => <Text>⚙️</Text>,
+        tabBarIcon: ({focused, size}) => (
+          <TabIcon name="settings" focused={focused} size={size} />
+        ),
       },
     },
   },
