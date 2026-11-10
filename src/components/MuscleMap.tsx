@@ -1,9 +1,12 @@
-import type {MuscleId} from '@/data/muscles';
-import {colors, radius, spacing} from '@/theme';
-import {useTranslation} from 'react-i18next';
-import {StyleSheet, Text, View} from 'react-native';
-import Svg, {Image, Path} from 'react-native-svg';
-import {MUSCLE_SCHEME_PATHS} from './muscleSchemeV2';
+import type { MuscleId } from '@/data/muscles';
+import { colors, radius, spacing } from '@/theme';
+import { useTranslation } from 'react-i18next';
+import { StyleSheet, Text, View } from 'react-native';
+import Svg, { Image, Path } from 'react-native-svg';
+import {
+  MUSCLE_SCHEME_V3_LATERAL_DELTOID_PATHS,
+  MUSCLE_SCHEME_V3_PATHS,
+} from './muscleSchemeV3';
 
 const REGION_PREFIXES_BY_MUSCLE: Partial<Record<MuscleId, string[]>> = {
   pectoralis_clavicular: ['pectoralis_clavicular-'],
@@ -21,6 +24,7 @@ const REGION_PREFIXES_BY_MUSCLE: Partial<Record<MuscleId, string[]>> = {
   trapezius_upper: ['trapezius_upper-'],
   trapezius_middle: ['trapezius_middle-'],
   trapezius_lower: ['trapezius_lower-'],
+  rhomboids: ['rhomboids-'],
   erector_spinae: ['erector_spinae-'],
   rectus_abdominis: ['rectus_abdominis-'],
   obliques: ['obliques-'],
@@ -56,17 +60,20 @@ function MuscleFigure({
   return (
     <Svg viewBox="0 0 1378 1142" style={styles.figure}>
       <Image
-        href={require('@/assets/muscles/muscle_scheme_segmented_v2.png')}
+        href={require('@/assets/muscles/muscle_scheme_segmented_v3_white_outline.png')}
         x={0}
         y={0}
         width={1378}
         height={1142}
         preserveAspectRatio="none"
       />
-      {Array.from(selected, ([prefix, color]) =>
-        MUSCLE_SCHEME_PATHS.filter(path => {
-          return path.id.startsWith(prefix);
-        }).map(path => (
+      {Array.from(selected, ([prefix, color]) => {
+        const paths =
+          prefix === 'deltoid_lateral-'
+            ? MUSCLE_SCHEME_V3_LATERAL_DELTOID_PATHS
+            : MUSCLE_SCHEME_V3_PATHS.filter(path => path.id.startsWith(prefix));
+
+        return paths.map(path => (
           <Path
             key={path.id}
             d={path.d}
@@ -76,8 +83,8 @@ function MuscleFigure({
             strokeWidth={0.8}
             strokeLinejoin="round"
           />
-        )),
-      )}
+        ));
+      })}
     </Svg>
   );
 }
@@ -89,7 +96,7 @@ export default function MuscleMap({
   primaryMuscles: MuscleId[];
   secondaryMuscles: MuscleId[];
 }) {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
@@ -105,9 +112,8 @@ export default function MuscleMap({
             <View style={styles.legendRow}>
               <View style={[styles.dot, styles.primaryDot]} />
               <Text style={styles.legendText}>
-                {t('muscles.primary')}: {primaryMuscles
-                  .map(id => t(`muscleNames.${id}`))
-                  .join(', ')}
+                {t('muscles.primary')}:{' '}
+                {primaryMuscles.map(id => t(`muscleNames.${id}`)).join(', ')}
               </Text>
             </View>
           )}
@@ -115,9 +121,8 @@ export default function MuscleMap({
             <View style={styles.legendRow}>
               <View style={[styles.dot, styles.secondaryDot]} />
               <Text style={styles.legendText}>
-                {t('muscles.secondary')}: {secondaryMuscles
-                  .map(id => t(`muscleNames.${id}`))
-                  .join(', ')}
+                {t('muscles.secondary')}:{' '}
+                {secondaryMuscles.map(id => t(`muscleNames.${id}`)).join(', ')}
               </Text>
             </View>
           )}
@@ -156,8 +161,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     marginTop: 4,
   },
-  primaryDot: {backgroundColor: colors.musclePrimary},
-  secondaryDot: {backgroundColor: colors.muscleSecondary},
+  primaryDot: { backgroundColor: colors.musclePrimary },
+  secondaryDot: { backgroundColor: colors.muscleSecondary },
   legendText: {
     color: colors.textMuted,
     flex: 1,
